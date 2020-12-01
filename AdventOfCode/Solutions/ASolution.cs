@@ -67,7 +67,10 @@ namespace AdventOfCode.Solutions
                 }
             }
 
-            if(doOutput) Console.WriteLine(output);
+            if( doOutput ) {
+                System.Diagnostics.Trace.WriteLine(output);
+                Console.WriteLine(output);
+            }
         }
 
         string LoadInput()
