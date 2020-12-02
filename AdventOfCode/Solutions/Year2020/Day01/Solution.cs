@@ -45,7 +45,7 @@ namespace AdventOfCode.Solutions.Year2020
                 iv = numbers[i];
                 for( int j = numbers.Count - 1; i < j && result == 0; --j ) {
                     jv = numbers[j];
-                    for( int k = i + 1; k < numbers.Count && result == 0; ++k ) {
+                    for( int k = i + 1; k < j && result == 0; ++k ) {
                         kv = numbers[k];
                         if( iv + jv + kv == 2020 ) {
                             result = iv * jv * kv;

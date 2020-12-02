@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -24,9 +25,9 @@ namespace AdventOfCode.Solutions
             Day = day;
             Year = year;
             Title = title;
-            _input = new Lazy<string>(() => LoadInput());
-            _part1 = new Lazy<string>(() => SolvePartOne());
-            _part2 = new Lazy<string>(() => SolvePartTwo());
+            _input = new Lazy<string>(LoadInput);
+            _part1 = new Lazy<string>(() => SafelySolve(SolvePartOne));
+            _part2 = new Lazy<string>(() => SafelySolve(SolvePartTwo));
         }
 
         public void Solve(int part = 0)
@@ -75,11 +76,15 @@ namespace AdventOfCode.Solutions
 
         string LoadInput()
         {
-            string INPUT_FILEPATH = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, $"../../../Solutions/Year{Year}/Day{Day.ToString("D2")}/input"));
+            string DEBUGINPUT_FILEPATH = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, $"../../../Solutions/Year{Year}/Day{Day:D2}/debugInput"));
+            string INPUT_FILEPATH = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, $"../../../Solutions/Year{Year}/Day{Day:D2}/input"));
             string INPUT_URL = $"https://adventofcode.com/{Year}/day/{Day}/input";
             string input = "";
 
-            if(File.Exists(INPUT_FILEPATH) && new FileInfo(INPUT_FILEPATH).Length > 0)
+            if(File.Exists(DEBUGINPUT_FILEPATH) && new FileInfo(DEBUGINPUT_FILEPATH).Length > 0) {
+                DebugInput = File.ReadAllText(DEBUGINPUT_FILEPATH);
+            }
+            else if(File.Exists(INPUT_FILEPATH) && new FileInfo(INPUT_FILEPATH).Length > 0)
             {
                 input = File.ReadAllText(INPUT_FILEPATH);
             }
@@ -123,5 +128,17 @@ namespace AdventOfCode.Solutions
 
         protected abstract string SolvePartOne();
         protected abstract string SolvePartTwo();
+
+        private string SafelySolve(Func<string> partSolver)
+        {
+            try {
+                return partSolver();
+            }
+            catch(Exception ex) {
+                Trace.TraceError($"Caught Exception:\r\n{ex}");
+                Debugger.Break();
+                return string.Empty;
+            }
+        }
     }
 }
