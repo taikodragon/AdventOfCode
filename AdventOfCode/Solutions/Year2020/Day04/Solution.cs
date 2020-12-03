@@ -10,7 +10,7 @@ namespace AdventOfCode.Solutions.Year2020
 
         public Day04() : base(04, 2020, "")
         {
-
+            UseDebugInput = false;
         }
 
         protected override string SolvePartOne()

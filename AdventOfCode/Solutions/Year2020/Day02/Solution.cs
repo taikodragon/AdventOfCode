@@ -9,9 +9,9 @@ namespace AdventOfCode.Solutions.Year2020
 
     class Day02 : ASolution
     {
-        public Day02() : base(02, 2020, "")
+        public Day02() : base(02, 2020, "Password Philosophy")
         {
-
+            UseDebugInput = false;
         }
 
         protected override string SolvePartOne()
