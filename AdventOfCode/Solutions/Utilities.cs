@@ -70,13 +70,13 @@ namespace AdventOfCode.Solutions
             return string.Join("", items);
         }
 
-        public static string[] SplitByNewline(this string input, bool shouldTrim = false)
+        public static List<string> SplitByNewline(this string input, bool blankLines = true, bool shouldTrim = false)
         {
             return input
                 .Split(new[] { "\r", "\n", "\r\n" }, StringSplitOptions.None)
-                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Where(s => blankLines || !string.IsNullOrWhiteSpace(s))
                 .Select(s => shouldTrim ? s.Trim() : s)
-                .ToArray();
+                .ToList();
         }
 
         public static string Reverse(this string str)

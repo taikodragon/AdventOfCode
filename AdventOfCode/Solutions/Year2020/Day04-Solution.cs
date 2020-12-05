@@ -86,7 +86,7 @@ namespace AdventOfCode.Solutions.Year2020
                     return false;
             }
             { // Hair Color
-                if( !Regex.Match(fields["hcl"], "^#[a-z0-9]{6}$").Success )
+                if( !Regex.IsMatch(fields["hcl"], "^#[a-f0-9]{6}$") )
                     return false;
             }
             { // Eye Color
@@ -94,7 +94,7 @@ namespace AdventOfCode.Solutions.Year2020
                     return false;
             }
             { // Passport Id
-                if( !Regex.Match(fields["pid"], "^[0-9]{9}$").Success )
+                if( !Regex.IsMatch(fields["pid"], "^[0-9]{9}$") )
                     return false;
             }
             //string output = $"byr:{fields["byr"]}\tiyr:{fields["iyr"]}\teyr:{fields["eyr"]}\thgt:{fields["hgt"]}\thcl:{fields["hcl"]}\tecl:{fields["ecl"]}\tpid:{fields["pid"]}";
