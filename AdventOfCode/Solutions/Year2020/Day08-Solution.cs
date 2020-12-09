@@ -33,7 +33,12 @@ namespace AdventOfCode.Solutions.Year2020
                 acc = pc.Run(program, out didFault);
                 if( didFault ) {
                     program = AsmProcessor.ParseProgram(lines);
+
                     int nextMod = program.FindIndex(modPos, i => (i.Op == Operation.nop && i.Arg != 0) || i.Op == Operation.jmp);
+                    if( nextMod == -1 ) {
+                        return "FAILED";
+                    }
+
                     modPos = nextMod + 1;
                     program[nextMod].Op = program[nextMod].Op == Operation.nop ? Operation.jmp : Operation.nop;
                 }

@@ -9,6 +9,18 @@ namespace AdventOfCode.Solutions.Year2020
     {
         nop, acc, jmp
     }
+    class ProcessorState
+    {
+        public ProcessorState(List<Instruction> prog)
+        {
+            Program = prog;
+        }
+
+        public List<Instruction> Program { get; }
+        public int InstructionPointer { get; set; }
+        public Instruction CurrentInstruction => InstructionPointer < Program.Count ? Program[InstructionPointer] : null;
+        public long Accumulator { get; set; }
+    }
     class Instruction
     {
         public Instruction() => Op = Operation.nop;
@@ -20,6 +32,29 @@ namespace AdventOfCode.Solutions.Year2020
         }
         public Operation Op { get; set; }
         public long Arg { get; set; }
+
+        public void RunOp(ProcessorState ps)
+        {
+            switch(Op) {
+                case Operation.acc: Op_Acc(ps); break;
+                case Operation.jmp: Op_Jmp(ps); break;
+                case Operation.nop: Op_Nop(ps); break;
+            }
+        }
+
+        void Op_Nop(ProcessorState ps)
+        {
+            ps.InstructionPointer++;
+        }
+        void Op_Acc(ProcessorState ps)
+        {
+            ps.Accumulator += Arg;
+            ps.InstructionPointer++;
+        }
+        void Op_Jmp(ProcessorState ps)
+        {
+            ps.InstructionPointer += (int)Arg;
+        }
     }
     class AsmProcessor
     {
@@ -31,32 +66,20 @@ namespace AdventOfCode.Solutions.Year2020
         public long Run(List<Instruction> program, out bool didFault) {
             List<int> pcVisited = new List<int>();
 
-            long accumulator = 0;
-            for(int pc = 0; pc < program.Count;) {
-                if( pcVisited.Contains(pc) ) {
+            ProcessorState ps = new ProcessorState(program);
+            while( ps.InstructionPointer < program.Count) {
+                if( pcVisited.Contains(ps.InstructionPointer) ) {
                     didFault = true;
-                    return accumulator;
+                    return ps.Accumulator;
                 }
-                else pcVisited.Add(pc);
-                Instruction inst = program[pc];
+                else pcVisited.Add(ps.InstructionPointer);
 
-                switch(inst.Op) {
-                    case Operation.nop:
-                        pc++;
-                        break;
-                    case Operation.acc:
-                        accumulator += inst.Arg;
-                        pc++;
-                        break;
-                    case Operation.jmp:
-                        pc += (int)inst.Arg;
-                        break;
-                    default:
-                        throw new Exception("Invalid Op");
-                }
+                Instruction inst = ps.CurrentInstruction;
+                if( inst == null ) break;
+                inst?.RunOp(ps);
             }
             didFault = false;
-            return accumulator;
+            return ps.Accumulator;
         }
     }
 }
