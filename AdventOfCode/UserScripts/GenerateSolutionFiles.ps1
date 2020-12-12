@@ -33,7 +33,7 @@ namespace AdventOfCode.Solutions.Year<YEAR>
 
 "@
 
-$newDirectory = Join-Path $PSScriptRoot ".." "Solutions" "Year$Year" -Resolve
+$newDirectory = Join-Path $PSScriptRoot ".." "Solutions" "Year$Year"
 if(!(Test-Path $newDirectory)) {
     New-Item $newDirectory -ItemType Directory | Out-Null
 }
