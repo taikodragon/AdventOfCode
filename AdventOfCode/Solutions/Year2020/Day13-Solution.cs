@@ -47,7 +47,7 @@ namespace AdventOfCode.Solutions.Year2020
                     routes.Add(i, busses[i]);
                 }
             }
-            List<int> keys = routes.Keys.ToList();
+            int[] keys = routes.Keys.ToArray();
             long jumpBy = busses[0];
 
             long time = busses[0], lastSuccessfulTime = 7;
@@ -57,14 +57,14 @@ namespace AdventOfCode.Solutions.Year2020
                     if( ((time + (keys[i])) % routes[keys[i]]) == 0 ) matches++;
                 }
                 if( searchKeyAt == matches - 1 ) {
-                    if( searchKeyAt + 1 == keys.Count ) {
+                    if( searchKeyAt + 1 == keys.Length ) {
                         finalTime = time;
                     }
 
                     if( nextMatches == matches ) {
                         jumpBy = time - lastSuccessfulTime;
                         searchKeyAt++;
-                        if( searchKeyAt >= keys.Count ) {
+                        if( searchKeyAt >= keys.Length ) {
                             finalTime = time;
                         }
                     }
