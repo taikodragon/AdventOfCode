@@ -93,6 +93,8 @@ namespace AdventOfCode.Solutions
 
         public static double FindGCD(double a, double b) => (a % b == 0) ? b : FindGCD(b, a % b);
 
+        public static long FindGCD(long a, long b) => (a % b == 0) ? b : FindGCD(b, a % b);
+
         public static double FindLCM(double a, double b) => a * b / FindGCD(a, b);
 
         public static void Repeat(this Action action, int count)
