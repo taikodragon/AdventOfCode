@@ -15,7 +15,6 @@ namespace AdventOfCode.Solutions.Year2020
 
 
         List<(Direction dir, int value)> instructions;
-        private int dir;
 
         public Day12() : base(12, 2020, "Rain Risk")
         {

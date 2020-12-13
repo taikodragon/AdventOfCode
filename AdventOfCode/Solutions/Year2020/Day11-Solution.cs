@@ -5,13 +5,6 @@ using System.Text;
 
 namespace AdventOfCode.Solutions.Year2020
 {
-    class IntCoord {
-        public IntCoord(int x, int y) {
-            X = x; Y = y;
-        }
-        public int X { get; set; }
-        public int Y { get; set; }
-    }
     class Day11 : ASolution
     {
         
