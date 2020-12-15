@@ -43,11 +43,6 @@ namespace AdventOfCode.Solutions.Year2020
 
         protected override string SolvePartTwo()
         {
-            return Part2Caching();
-            //return Part2Orderly();
-        }
-
-        string Part2Caching() {
             int idx = 0, lastSpoken = -1;
             Dictionary<int, int> spokeCache = new Dictionary<int, int>();
             foreach( int num in Input.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(n => int.Parse(n)) ) {
@@ -71,27 +66,6 @@ namespace AdventOfCode.Solutions.Year2020
 
 
             return lastSpoken.ToString();
-        }
-        string Part2Orderly() {
-            List<int> spokenNumbers = new List<int>(30000000);
-            spokenNumbers.AddRange(Input.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(n => int.Parse(n)));
-
-            while( spokenNumbers.Count < 30000000 ) {
-                int lastSpokenIndex = spokenNumbers.Count - 1;
-                int lastSpoken = spokenNumbers[lastSpokenIndex];
-                int distance = 0;
-                for( int i = lastSpokenIndex - 1; i >= 0; --i ) {
-                    if( spokenNumbers[i] == lastSpoken ) {
-                        distance = lastSpokenIndex - i;
-                        break;
-                    }
-                }
-                spokenNumbers.Add(distance);
-            }
-
-
-
-            return spokenNumbers[spokenNumbers.Count - 1].ToString();
         }
     }
 }
