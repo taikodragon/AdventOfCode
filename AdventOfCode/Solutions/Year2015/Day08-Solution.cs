@@ -20,16 +20,28 @@ namespace AdventOfCode.Solutions.Year2015
         {
             string inputRaw = Regex.Replace(Input, "[ \t]+", string.Empty);
             string inputCode = Regex.Replace(inputRaw, "[\n\r]+", string.Empty);
-            string inputMem = Regex.Replace(inputRaw, "^\"", string.Empty);
-            inputMem = Regex.Replace(inputMem, "\"$", string.Empty);
-            inputMem = Regex.Replace(inputMem, "\\\"|\\\\\\\\|\\\\x[0-9a-fA-F]{2}", "~");
+            string inputMem = string.Concat(inputRaw.SplitByNewline().Select(s => s.Trim('"')));
+            inputMem = inputMem.Replace("\\\"", "\"");
+            inputMem = inputMem.Replace("\\\\", "\\");
+            inputMem = Regex.Replace(inputMem, "\\\\x[0-9a-fA-F]{2}", "~");
 
             return $"{inputCode.Length - inputMem.Length}";
         }
 
         protected override string SolvePartTwo()
         {
-            return null;
+            string inputRaw = Regex.Replace(Input, "[ \t]+", string.Empty);
+            string inputCode = Regex.Replace(inputRaw, "[\n\r]+", string.Empty);
+
+            string inputMem = string.Concat(
+                inputRaw
+                .SplitByNewline()
+                .Select(s => s.Replace("\\", "\\\\").Replace("\"", "\\\"") )
+                .Select(s => string.Concat("\"", s, "\"") )
+                );
+            //inputMem = Regex.Replace(inputMem, "\\\\x[0-9a-fA-F]{2}", "\\\\x~~");
+
+            return $"{inputMem.Length - inputCode.Length}";
         }
     }
 }
