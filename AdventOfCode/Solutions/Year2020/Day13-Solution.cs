@@ -31,7 +31,6 @@ namespace AdventOfCode.Solutions.Year2020
                     return (foundBus.b * (time - minDepartTime)).ToString();
                 }
             }
-            return "FAIL";
         }
 
         long finalTime;
