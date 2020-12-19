@@ -12,12 +12,12 @@ namespace AdventOfCode.Solutions.Year2020
         {
             Sum, Mult
         }
-        public Day18() : base(18, 2020, "")
+        public Day18() : base(18, 2020, "Operation Order")
         {
             UseDebugInput = false;
         }
 
-        long MultSum(string line, ref int at, bool reqClosing) {
+        long MultSum(string line, ref int at) {
             long pval;
             long? lhs = null, rhs = null;
             Op? operation = null;
@@ -25,7 +25,7 @@ namespace AdventOfCode.Solutions.Year2020
                 if( line[at] == ')' ) return lhs.Value;
                 if( line[at] == '(' ) {
                     at++;
-                    pval = MultSum(line, ref at, true);
+                    pval = MultSum(line, ref at);
                     if( lhs == null ) lhs = pval;
                     else rhs = pval;
                 }
@@ -59,7 +59,7 @@ namespace AdventOfCode.Solutions.Year2020
             long sum = 0;
             foreach(string line in Input.SplitByNewline(false) ) {
                 int at = 0;
-                long result = MultSum(line.Replace(" ", string.Empty), ref at, false);
+                long result = MultSum(line.Replace(" ", string.Empty), ref at);
                 values.Add(result);
                 sum = sum + result;
             }
