@@ -111,7 +111,7 @@ namespace AdventOfCode.Solutions.Year2020
                 .Replace("\n11: 42 31\n", "\n11: 42 31 | 42 11 31\n");
             ParseRulesV1(groups);
 
-            string debugMe = "disabled";
+            string debugMe = "aaabbbbbbaaaabaababaabababbabaaabbababababaaa";
             int sum = 0;
             foreach(string line in lines) {
                 bool result = EvaluateRule(0, line, 0, 0, line == debugMe).Count > 0;

@@ -26,8 +26,8 @@ namespace AdventOfCode.Solutions
 
         public int CompareTo([AllowNull] IntCoord other) {
             if( other == null ) return -1;
-            if( X == other.X ) return Y.CompareTo(other.Y);
-            return X.CompareTo(other.X);
+            if( Y == other.Y ) return X.CompareTo(other.X);
+            return Y.CompareTo(other.Y);
         }
 
         public bool Equals([AllowNull] IntCoord other) {
