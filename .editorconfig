@@ -1,0 +1,7 @@
+#Rule set to keep all files in Unix line endings to simplify and align with puzzle inputs.
+
+[*]
+end_of_line = lf
+
+[*.cs]
+insert_final_newline = true

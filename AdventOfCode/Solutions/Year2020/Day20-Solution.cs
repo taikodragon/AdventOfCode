@@ -9,51 +9,6 @@ namespace AdventOfCode.Solutions.Year2020
 
     class Day20 : ASolution
     {
-        static TValue[,] ArrayFlipVertical<TValue>(TValue[,] oldValue) {
-            int xLength = oldValue.GetLength(0),
-                yLength = oldValue.GetLength(1);
-            var newValue = new TValue[xLength, yLength];
-            for( int ox = 0, nx = xLength - 1; ox < xLength; ox++, nx-- ) {
-                for( int y = 0; y < yLength; y++ ) {
-                    newValue[nx, y] = oldValue[ox, y];
-                }
-            }
-            return newValue;
-        }
-        static TValue[,] ArrayFlipHorizontal<TValue>(TValue[,] oldValue) {
-            int xLength = oldValue.GetLength(0),
-                yLength = oldValue.GetLength(1);
-            var newValue = new TValue[xLength, yLength];
-            for( int x = 0; x < xLength; x++ ) {
-                for( int oy = 0, ny = yLength - 1; oy < yLength; oy++, ny-- ) {
-                    newValue[x, ny] = oldValue[x, oy];
-                }
-            }
-            return newValue;
-        }
-        static TValue[,] ArrayRotateClockwise<TValue>(TValue[,] oldValue) {
-            int xLength = oldValue.GetLength(0),
-                yLength = oldValue.GetLength(1);
-            var newValue = new TValue[xLength, yLength];
-            for( int x = 0; x < xLength; x++ ) {
-                for( int y = 0; y < yLength; y++ ) {
-                    newValue[yLength - 1 - y, x] = oldValue[x, y];
-                }
-            }
-            return newValue;
-        }
-        static TValue[,] ArrayRotateCounterClockwise<TValue>(TValue[,] oldValue) {
-            int xLength = oldValue.GetLength(0),
-                yLength = oldValue.GetLength(1);
-            var newValue = new TValue[xLength, yLength];
-            for( int x = 0; x < xLength; x++ ) {
-                for( int y = 0; y < yLength; y++ ) {
-                    newValue[y, xLength - 1 - x] = oldValue[x, y];
-                }
-            }
-            return newValue;
-        }
-
         const int tileDims = 10;
 
         const int tileDataDim = tileDims - 2;
@@ -82,51 +37,19 @@ namespace AdventOfCode.Solutions.Year2020
             public Dictionary<Side, string> Sides { get; set; } = new Dictionary<Side, string>();
 
             public void FlipVert() {
-                //var oldData = ImageData;
-                //var newData = new bool[tileDim, tileDim];
-                //for( int ox = 0, nx = tileDim - 1; ox < tileDim; ox++, nx-- ) {
-                //    for(int y = 0; y < tileDim; y++ ) {
-                //        newData[nx, y] = oldData[ox, y];
-                //    }
-                //}
-                //ImageData = newData;
-                ImageData = ArrayFlipVertical(ImageData);
+                ImageData = ImageData.FlipVertically();
                 RebuildSides();
             }
             public void FlipHoriz() {
-                //var oldData = ImageData;
-                //var newData = new bool[tileDim, tileDim];
-                //for( int x = 0; x < tileDim; x++ ) {
-                //    for( int oy = 0, ny = tileDim - 1; oy < tileDim; oy++, ny-- ) {
-                //        newData[x, ny] = oldData[x, oy];
-                //    }
-                //}
-                //ImageData = newData;
-                ImageData = ArrayFlipHorizontal(ImageData);
+                ImageData = ImageData.FlipHorizontally();
                 RebuildSides();
             }
             public void RotateCounterClockwise() {
-                //var oldData = ImageData;
-                //var newData = new bool[tileDim, tileDim];
-                //for( int x = 0; x < tileDim; x++ ) {
-                //    for( int y = 0; y < tileDim; y++ ) {
-                //        newData[y, tileDim - 1 - x] = oldData[x, y];
-                //    }
-                //}
-                //ImageData = newData;
-                ImageData = ArrayRotateCounterClockwise(ImageData);
+                ImageData = ImageData.RotateCounterClockwise();
                 RebuildSides();
             }
             public void RotateClockwise() {
-                //var oldData = ImageData;
-                //var newData = new bool[tileDim, tileDim];
-                //for( int x = 0; x < tileDim; x++ ) {
-                //    for( int y = 0; y < tileDim; y++ ) {
-                //        newData[tileDim - 1 - y, x] = oldData[x, y];
-                //    }
-                //}
-                //ImageData = newData;
-                ImageData = ArrayRotateClockwise(ImageData);
+                ImageData = ImageData.RotateClockwise();
                 RebuildSides();
             }
             public void RebuildSides() {
@@ -301,81 +224,37 @@ namespace AdventOfCode.Solutions.Year2020
             }
 
             PrintTile(image);
-            //return "FAIL";
-            //IntCoord min = tiles.Values.Select(t => t.Origin).OrderBy(t => t).First(); 
-            ////new IntCoord(tiles.Values.Select(t => t.Origin).OrderBy(t => t).First().Min(), image.Values.SelectMany(d => d.Keys).Min());
-            //IntCoord max = tiles.Values.Select(t => t.Origin).OrderByDescending(t => t).First();
-            ////new IntCoord(image.Keys.Max(), image.Values.SelectMany(d => d.Keys).Max());
-
-            //Tile[,] blocks = new Tile[dim, dim];
-            ////{
-            ////    int i = 0;
-            ////    foreach(var tile in tiles.Values.OrderBy(t => t.Origin) ) {
-            ////        blocks[i / dim, i % dim] = tile;
-            ////        i++;
-            ////    }
-            ////}
-            //PrintBlocks(blocks);
 
             List<bool[,]> variants = new List<bool[,]>();
 
-
-            //variants.Add(BuildImage(blocks));
-            //Trace.WriteLine("BUILT"); PrintTile(variants[variants.Count - 1]);
-
-            //// ClockWise
-            //variants.Add(BuildImage(ArrayRotateClockwise(blocks)));
-            //Trace.WriteLine("CW"); PrintTile(variants[variants.Count - 1]);
-
-            //// Counter ClocKWise
-            //variants.Add(BuildImage(ArrayRotateCounterClockwise(blocks)));
-            //Trace.WriteLine("CCW"); PrintTile(variants[variants.Count - 1]);
-
-            //variants.Add(BuildImage(ArrayFlipVertical(blocks)));
-            //Trace.WriteLine("FLIP V"); PrintTile(variants[variants.Count - 1]);
-
-            //var hFlip = ArrayFlipHorizontal(blocks);
-            //variants.Add(BuildImage(hFlip));
-            //Trace.WriteLine("FLIP H"); PrintTile(variants[variants.Count - 1]);
-
-            //// ClockWise
-            //variants.Add(BuildImage(ArrayRotateClockwise(hFlip)));
-            //Trace.WriteLine("FLIP H CW"); PrintTile(variants[variants.Count - 1]);
-
-            //// Counter ClocKWise
-            //variants.Add(BuildImage(ArrayRotateCounterClockwise(hFlip)));
-            //Trace.WriteLine("FLIP H CCW"); PrintTile(variants[variants.Count - 1]);
-
-            //variants.Add(BuildImage(ArrayFlipVertical(hFlip)));
-            //Trace.WriteLine("FLIP H FLIP V"); PrintTile(variants[variants.Count - 1]);
 
             variants.Add(image);
             Trace.WriteLine("BUILT"); PrintTile(variants[variants.Count - 1]);
 
             // ClockWise
-            variants.Add(ArrayRotateClockwise(image));
+            variants.Add(image.RotateClockwise());
             Trace.WriteLine("CW"); PrintTile(variants[variants.Count - 1]);
 
             // Counter ClocKWise
-            variants.Add(ArrayRotateCounterClockwise(image));
+            variants.Add(image.RotateCounterClockwise());
             Trace.WriteLine("CCW"); PrintTile(variants[variants.Count - 1]);
 
-            variants.Add(ArrayFlipVertical(image));
+            variants.Add(image.FlipVertically());
             Trace.WriteLine("FLIP V"); PrintTile(variants[variants.Count - 1]);
 
-            var hFlip = ArrayFlipHorizontal(image);
+            var hFlip = image.FlipHorizontally();
             variants.Add(hFlip);
             Trace.WriteLine("FLIP H"); PrintTile(variants[variants.Count - 1]);
 
             // ClockWise
-            variants.Add(ArrayRotateClockwise(hFlip));
+            variants.Add(hFlip.RotateClockwise());
             Trace.WriteLine("FLIP H CW"); PrintTile(variants[variants.Count - 1]);
 
             // Counter ClocKWise
-            variants.Add(ArrayRotateCounterClockwise(hFlip));
+            variants.Add(hFlip.RotateCounterClockwise());
             Trace.WriteLine("FLIP H CCW"); PrintTile(variants[variants.Count - 1]);
 
-            variants.Add(ArrayFlipVertical(hFlip));
+            variants.Add(hFlip.FlipVertically());
             Trace.WriteLine("FLIP H FLIP V"); PrintTile(variants[variants.Count - 1]);
 
             int imgStride = dim * (tileDataDim);
@@ -617,24 +496,6 @@ namespace AdventOfCode.Solutions.Year2020
                 sb.AppendLine();
             }
             Trace.Write(sb);
-        }
-
-        bool[,] BuildImage(Tile[,] arr) {
-            int iLen = arr.GetLength(0), jLen = arr.GetLength(1);
-            bool[,] img = new bool[dim * tileDataDim, dim * tileDataDim];
-            for(int i = 0; i < iLen; i++ ) {
-                for(int j = 0; j < jLen; j++ ) {
-                    bool[,] tileData = arr[i, j].ImageData;
-                    int xMax = i * tileDataDim + tileDataDim,
-                        yMax = j * tileDataDim + tileDataDim;
-                    for(int x = 0, nx = i * tileDataDim; nx < xMax; x++, nx++ ) {
-                        for(int y = 0, ny = j * tileDataDim; ny < yMax; y++, ny++ ) {
-                            img[nx, ny] = tileData[x, y];
-                        }
-                    }
-                }
-            }
-            return img;
         }
 
         void PrintTile(bool[,] arr ) {
