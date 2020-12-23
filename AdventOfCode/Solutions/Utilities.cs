@@ -131,5 +131,82 @@ namespace AdventOfCode.Solutions
         }
 
         public static (int, int) Add(this (int x, int y) a, (int x, int y) b) => (a.x + b.x, a.y + b.y);
+
+        /// <summary>
+        /// Flips the Array vertically, so the first row becomes the last row.
+        /// It is assumed the array is not ragged.
+        /// </summary>
+        /// <typeparam name="TValue">Data type contained in the array.</typeparam>
+        /// <param name="oldValue">2D array to be flipped.</param>
+        /// <returns>A NEW 2D array populated with vertically flipped shallow copy.</returns>
+        public static TValue[,] FlipVertically<TValue>(this TValue[,] oldValue) {
+            int xLength = oldValue.GetLength(0),
+                yLength = oldValue.GetLength(1);
+            var newValue = new TValue[xLength, yLength];
+            for( int ox = 0, nx = xLength - 1; ox < xLength; ox++, nx-- ) {
+                for( int y = 0; y < yLength; y++ ) {
+                    newValue[nx, y] = oldValue[ox, y];
+                }
+            }
+            return newValue;
+        }
+
+        /// <summary>
+        /// Flips the Array horizontally, so the first column becomes the last column.
+        /// It is assumed the array is not ragged.
+        /// </summary>
+        /// <typeparam name="TValue">Data type contained in the array.</typeparam>
+        /// <param name="oldValue">2D array to be flipped.</param>
+        /// <returns>A NEW 2D array populated with horizontally flipped shallow copy.</returns>
+        public static TValue[,] FlipHorizontally<TValue>(this TValue[,] oldValue) {
+            int xLength = oldValue.GetLength(0),
+                yLength = oldValue.GetLength(1);
+            var newValue = new TValue[xLength, yLength];
+            for( int x = 0; x < xLength; x++ ) {
+                for( int oy = 0, ny = yLength - 1; oy < yLength; oy++, ny-- ) {
+                    newValue[x, ny] = oldValue[x, oy];
+                }
+            }
+            return newValue;
+        }
+
+        /// <summary>
+        /// Rotates the Array clockwise by 90 degrees.
+        /// It is assumed the array is not ragged.
+        /// </summary>
+        /// <typeparam name="TValue">Data type contained in the array.</typeparam>
+        /// <param name="oldValue">2D array to be rotated.</param>
+        /// <returns>A NEW 2D array populated with teh rotated shallow copy.</returns>
+        public static TValue[,] RotateClockwise<TValue>(this TValue[,] oldValue) {
+            int xLength = oldValue.GetLength(0),
+                yLength = oldValue.GetLength(1);
+            var newValue = new TValue[xLength, yLength];
+            for( int x = 0; x < xLength; x++ ) {
+                for( int y = 0; y < yLength; y++ ) {
+                    newValue[yLength - 1 - y, x] = oldValue[x, y];
+                }
+            }
+            return newValue;
+        }
+
+        /// <summary>
+        /// Rotates the Array counter clockwise by 90 degrees.
+        /// It is assumed the array is not ragged.
+        /// </summary>
+        /// <typeparam name="TValue">Data type contained in the array.</typeparam>
+        /// <param name="oldValue">2D array to be rotated.</param>
+        /// <returns>A NEW 2D array populated with teh rotated shallow copy.</returns>
+        public static TValue[,] RotateCounterClockwise<TValue>(this TValue[,] oldValue) {
+            int xLength = oldValue.GetLength(0),
+                yLength = oldValue.GetLength(1);
+            var newValue = new TValue[xLength, yLength];
+            for( int x = 0; x < xLength; x++ ) {
+                for( int y = 0; y < yLength; y++ ) {
+                    newValue[y, xLength - 1 - x] = oldValue[x, y];
+                }
+            }
+            return newValue;
+        }
+
     }
 }
