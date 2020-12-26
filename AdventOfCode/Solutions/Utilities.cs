@@ -208,5 +208,17 @@ namespace AdventOfCode.Solutions
             return newValue;
         }
 
+
+    }
+    public enum CompassDirection
+    {
+        N,
+        NE,
+        E,
+        SE,
+        S,
+        SW,
+        W,
+        NW
     }
 }
