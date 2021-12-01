@@ -13,9 +13,9 @@ namespace AdventOfCode.Solutions.Year2020
         Dictionary<int, char> roots = new Dictionary<int, char>();
         Dictionary<int, List<int[]>> refRules = new Dictionary<int, List<int[]>>();
         List<string> lines;
-        public Day19() : base(19, 2020, "Monster Messages")
+        public Day19() : base(19, 2020, "Monster Messages", false)
         {
-            UseDebugInput = false;
+            
         }
 
         void ParseRulesV1(string[] groups) {

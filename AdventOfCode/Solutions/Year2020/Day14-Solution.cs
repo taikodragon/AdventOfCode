@@ -9,9 +9,9 @@ namespace AdventOfCode.Solutions.Year2020
     class Day14 : ASolution
     {
         readonly List<(string cmd, string value)> lines;
-        public Day14() : base(14, 2020, "Docking Data")
+        public Day14() : base(14, 2020, "Docking Data", false)
         {
-            UseDebugInput = false;
+            
 
             lines = Input
                 .Replace("mem[", string.Empty)
@@ -68,20 +68,16 @@ namespace AdventOfCode.Solutions.Year2020
                     mp.Enqueue(inst.value);
                     int i = inst.value.Length - 1;
                     while(mp.Count > 0) {
-                        string mask = mp.Dequeue();
-                        bool didQueue = false;
-                        for( ; i >= 0; --i ) {
-                            if(mask[i] == 'X') {
-                                string m1 = mask.Substring(0, i),
-                                    m2 = mask.Substring(i+1, (maskLength) - i);
-                                mp.Enqueue(string.Concat(m1, "Z", m2));
-                                mp.Enqueue(string.Concat(m1, "1", m2));
-                                didQueue = true;
-                                break;
-                            }
+                        char[] mask = mp.Dequeue().ToCharArray();
+                        i = Array.LastIndexOf(mask, 'X');
+                        if(i > -1) {
+                            mask[i] = 'Z';
+                            mp.Enqueue(new string(mask));
+                            mask[i] = '1';
+                            mp.Enqueue(new string(mask));
                         }
-                        if(!didQueue) {
-                            masks.Add(mask);
+                        else {
+                            masks.Add(new string(mask));
                         }
                     }
                     continue;

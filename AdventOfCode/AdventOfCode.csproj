@@ -23,4 +23,8 @@
     <Folder Include="Solutions\Year2019\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
 </Project>

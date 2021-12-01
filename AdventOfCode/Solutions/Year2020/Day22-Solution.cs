@@ -11,9 +11,9 @@ namespace AdventOfCode.Solutions.Year2020
         const int p1 = 1, p2 = 2;
         Dictionary<int, Queue<int>> playersOriginal = new Dictionary<int, Queue<int>>(2);
 
-        public Day22() : base(22, 2020, "Crab Combat")
+        public Day22() : base(22, 2020, "Crab Combat", false)
         {
-            UseDebugInput = false;
+            
 
             int atPlayer = p1;
             foreach(string playerDesk in Input.Split("\n\n")) {

@@ -18,9 +18,9 @@ namespace AdventOfCode.Solutions.Year2015
             public IntCoord Upper { get; set; }
         }
         List<Instruction> instructions = new List<Instruction>();
-        public Day06() : base(06, 2015, "Probably a Fire Hazard")
+        public Day06() : base(06, 2015, "Probably a Fire Hazard", false)
         {
-            UseDebugInput = false;
+            
 
             foreach(string line in Input.SplitByNewline()) {
                 string[] lineParts = line.Replace("turn ", string.Empty).Split(new char[] { ' ', ',' });

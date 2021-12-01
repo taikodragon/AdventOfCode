@@ -10,9 +10,9 @@ namespace AdventOfCode.Solutions.Year2015
     {
         List<(int l, int w, int h)> presents;
 
-        public Day02() : base(02, 2015, "I Was Told There Would Be No Math")
+        public Day02() : base(02, 2015, "I Was Told There Would Be No Math", false)
         {
-            UseDebugInput = false;
+            
 
             presents = Input.SplitByNewline().Select(s => {
                 string[] dims = s.Split('x');

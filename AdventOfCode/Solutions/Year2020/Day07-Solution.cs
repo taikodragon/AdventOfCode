@@ -19,9 +19,9 @@ namespace AdventOfCode.Solutions.Year2020
         Dictionary<string, List<string>> containedBy = new Dictionary<string, List<string>>();
         Dictionary<string, List<BagRule>> rules = new Dictionary<string, List<BagRule>>();
         List<string> lines;
-        public Day07() : base(07, 2020, "Handy Haversacks")
+        public Day07() : base(07, 2020, "Handy Haversacks", false)
         {
-            UseDebugInput = false;
+            
 
             lines = Input.SplitByNewline().Select(s => s.Trim('.')).ToList();
 

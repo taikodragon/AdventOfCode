@@ -14,9 +14,9 @@ namespace AdventOfCode.Solutions.Year2020
 
         bool continueGuessing = true;
 
-        public Day25() : base(25, 2020, "")
+        public Day25() : base(25, 2020, "", false)
         {
-            UseDebugInput = false;
+            
 
             if( UseDebugInput ) {
                 cardPubKey = 5764801;

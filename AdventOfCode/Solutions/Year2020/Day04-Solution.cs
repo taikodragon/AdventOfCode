@@ -14,9 +14,9 @@ namespace AdventOfCode.Solutions.Year2020
         List<string> requiredFields = new List<string> { "byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid" };
         List<string> validEyeColors = new List<string> { "amb", "blu", "brn", "gry", "grn", "hzl", "oth" };
         List<string> lines;
-        public Day04() : base(04, 2020, "Passport Processing")
+        public Day04() : base(04, 2020, "Passport Processing", false)
         {
-            UseDebugInput = false;
+            
 
             lines = Input.Split("\n").ToList();
         }

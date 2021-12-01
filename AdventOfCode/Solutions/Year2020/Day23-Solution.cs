@@ -62,9 +62,9 @@ namespace AdventOfCode.Solutions.Year2020
 
         List<int> startingCups = new List<int>();
 
-        public Day23() : base(23, 2020, "Crab Cups")
+        public Day23() : base(23, 2020, "Crab Cups", false)
         {
-            UseDebugInput = false;
+            
 
             startingCups = Input.Trim().Select(c => int.Parse(c.ToString())).ToList();
 

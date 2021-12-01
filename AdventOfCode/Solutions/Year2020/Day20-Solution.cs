@@ -102,9 +102,9 @@ namespace AdventOfCode.Solutions.Year2020
             Dictionary<long, Tile> tiles = new Dictionary<long, Tile>();
         Dictionary<string, List<(long id, Side side)>> sideCache = new Dictionary<string, List<(long, Side)>>();
         int dim;
-        public Day20() : base(20, 2020, "Jurassic Jigsaw")
+        public Day20() : base(20, 2020, "Jurassic Jigsaw", false)
         {
-            UseDebugInput = false;
+            
 
             string[] rawTiles = Input.Split("\n\n", StringSplitOptions.RemoveEmptyEntries);
 

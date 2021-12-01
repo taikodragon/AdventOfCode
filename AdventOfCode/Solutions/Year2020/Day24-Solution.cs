@@ -14,8 +14,8 @@ namespace AdventOfCode.Solutions.Year2020
         HexDirection[] directions = new HexDirection[] { HexDirection.W, HexDirection.NW, HexDirection.NE, HexDirection.E, HexDirection.SE, HexDirection.SW };
 
         Dictionary<(int ring, int pos), HexNode<bool>> part1Grid;
-        public Day24() : base(24, 2020, "Lobby Layout") {
-            UseDebugInput = false;
+        public Day24() : base(24, 2020, "Lobby Layout", false) {
+            
         }
 
         protected override string SolvePartOne() {

@@ -10,9 +10,9 @@ namespace AdventOfCode.Solutions.Year2020
     {
         AsmProcessor pc = new AsmProcessor();
         List<string> lines;
-        public Day08() : base(08, 2020, "Handheld Halting")
+        public Day08() : base(08, 2020, "Handheld Halting", false)
         {
-            UseDebugInput = false;
+            
 
             lines = Input.SplitByNewline();
         }

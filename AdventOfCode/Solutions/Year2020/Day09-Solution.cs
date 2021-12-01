@@ -10,9 +10,9 @@ namespace AdventOfCode.Solutions.Year2020
     {
         List<long> numbers;
         int preambleLength;
-        public Day09() : base(09, 2020, "Encoding Error")
+        public Day09() : base(09, 2020, "Encoding Error", false)
         {
-            UseDebugInput = false;
+            
             preambleLength = UseDebugInput ? 5 : 25;
 
             numbers = Input.SplitByNewline().Select(s => long.Parse(s)).ToList();

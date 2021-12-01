@@ -10,9 +10,9 @@ namespace AdventOfCode.Solutions.Year2020
     {
         List<string> lines = new List<string>();
 
-        public Day06() : base(06, 2020, "Custom Customs")
+        public Day06() : base(06, 2020, "Custom Customs", false)
         {
-            UseDebugInput = false;
+            
 
             lines = Input.SplitByNewline();
         }

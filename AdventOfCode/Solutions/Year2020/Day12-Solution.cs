@@ -16,9 +16,9 @@ namespace AdventOfCode.Solutions.Year2020
 
         List<(Direction dir, int value)> instructions;
 
-        public Day12() : base(12, 2020, "Rain Risk")
+        public Day12() : base(12, 2020, "Rain Risk", false)
         {
-            UseDebugInput = false;
+            
 
             instructions = Input.SplitByNewline().Select(s => {
                 return ((Direction)Enum.Parse(typeof(Direction), s[0].ToString()), int.Parse(s[1..]));

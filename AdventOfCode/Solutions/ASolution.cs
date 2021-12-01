@@ -25,13 +25,14 @@ namespace AdventOfCode.Solutions
         public long ContructionTime { get; set; }
         protected bool UseDebugInput { get; set; }
 
-        private protected ASolution(int day, int year, string title) {
+        private protected ASolution(int day, int year, string title, bool useDebugInput) {
             Day = day;
             Year = year;
             Title = title;
             _input = new Lazy<string>(LoadInput);
             _part1 = new Lazy<string>(() => SafelySolve(SolvePartOne, out _part1Time));
             _part2 = new Lazy<string>(() => SafelySolve(SolvePartTwo, out _part2Time));
+            UseDebugInput = useDebugInput;
         }
 
         public void Solve(int part = 0) {

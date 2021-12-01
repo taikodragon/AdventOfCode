@@ -11,9 +11,9 @@ namespace AdventOfCode.Solutions.Year2015
     {
 
 
-        public Day08() : base(08, 2015, "")
+        public Day08() : base(08, 2015, "Matchsticks", false)
         {
-            UseDebugInput = false;
+            
         }
 
         protected override string SolvePartOne()

@@ -19,9 +19,9 @@ namespace AdventOfCode.Solutions.Year2020
             }
         }
 
-        public Day16() : base(16, 2020, "Ticket Translation")
+        public Day16() : base(16, 2020, "Ticket Translation", false)
         {
-            UseDebugInput = false;
+            
         }
 
         protected override string SolvePartOne()

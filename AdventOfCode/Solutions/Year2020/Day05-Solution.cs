@@ -9,9 +9,9 @@ namespace AdventOfCode.Solutions.Year2020
     class Day05 : ASolution
     {
         List<string> lines = new List<string>();
-        public Day05() : base(05, 2020, "Binary Boarding")
+        public Day05() : base(05, 2020, "Binary Boarding", false)
         {
-            UseDebugInput = false;
+            
             lines = Input.SplitByNewline();
         }
 

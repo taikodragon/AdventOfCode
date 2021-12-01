@@ -18,7 +18,11 @@ namespace AdventOfCode.Solutions.Year2020
 
         public List<Instruction> Program { get; }
         public int InstructionPointer { get; set; }
-        public Instruction CurrentInstruction => InstructionPointer < Program.Count ? Program[InstructionPointer] : null;
+        public Instruction CurrentInstruction {
+            get {
+                return InstructionPointer < Program.Count ? Program[InstructionPointer] : null;
+            }
+        }
         public long Accumulator { get; set; }
     }
     class Instruction

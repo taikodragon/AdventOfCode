@@ -9,9 +9,9 @@ namespace AdventOfCode.Solutions.Year2015
     class Day01 : ASolution
     {
 
-        public Day01() : base(01, 2015, "Not Quite Lisp")
+        public Day01() : base(01, 2015, "Not Quite Lisp", false)
         {
-            UseDebugInput = false;
+            
         }
 
         protected override string SolvePartOne()

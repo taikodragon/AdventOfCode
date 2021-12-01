@@ -19,9 +19,9 @@ namespace AdventOfCode.Solutions.Year2020
         Dictionary<string, string> allergenToIngredient = new Dictionary<string, string>();
         HashSet<string> allIngredients = new HashSet<string>();
 
-        public Day21() : base(21, 2020, "Allergen Assessment")
+        public Day21() : base(21, 2020, "Allergen Assessment", false)
         {
-            UseDebugInput = false;
+            
 
             foreach(string line in Input.SplitByNewline()) {
                 var ingrAller = line.Split("(contains ").Select(p => p.Trim(')').Trim()).ToList();

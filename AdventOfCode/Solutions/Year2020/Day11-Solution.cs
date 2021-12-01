@@ -11,9 +11,9 @@ namespace AdventOfCode.Solutions.Year2020
         const char floor = '.', empty = 'L', occupied = '#';
 
         char[,] map;
-        public Day11() : base(11, 2020, "Seating System")
+        public Day11() : base(11, 2020, "Seating System", false)
         {
-            UseDebugInput = false;
+            
 
             var lines = Input.SplitByNewline();
             map = new char[lines.Count, lines[0].Length];

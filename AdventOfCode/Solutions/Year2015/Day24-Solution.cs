@@ -9,9 +9,9 @@ namespace AdventOfCode.Solutions.Year2015
     class Day24 : ASolution
     {
 
-        public Day24() : base(24, 2015, "")
+        public Day24() : base(24, 2015, "", false)
         {
-            UseDebugInput = false;
+            
         }
 
         protected override string SolvePartOne()

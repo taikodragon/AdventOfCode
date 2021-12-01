@@ -12,9 +12,9 @@ namespace AdventOfCode.Solutions.Year2015
         List<string> forbidden = new List<string>() {
             "ab", "cd", "pq", "xy"
         };
-        public Day05() : base(05, 2015, "Doesn't He Have Intern-Elves For This?")
+        public Day05() : base(05, 2015, "Doesn't He Have Intern-Elves For This?", false)
         {
-            UseDebugInput = false;
+            
 
 
         }

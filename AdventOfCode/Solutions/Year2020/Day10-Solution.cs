@@ -11,9 +11,9 @@ namespace AdventOfCode.Solutions.Year2020
     {
         List<int> lines;
 
-        public Day10() : base(10, 2020, "Adapter Array")
+        public Day10() : base(10, 2020, "Adapter Array", false)
         {
-            UseDebugInput = false;
+            
 
             lines = Input.SplitByNewline().Select(s => int.Parse(s)).ToList();
             lines.Add(0);

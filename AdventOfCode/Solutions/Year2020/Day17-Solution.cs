@@ -9,9 +9,9 @@ namespace AdventOfCode.Solutions.Year2020
     class Day17 : ASolution
     {
 
-        public Day17() : base(17, 2020, "")
+        public Day17() : base(17, 2020, "", false)
         {
-            UseDebugInput = false;
+            
 
 
         }

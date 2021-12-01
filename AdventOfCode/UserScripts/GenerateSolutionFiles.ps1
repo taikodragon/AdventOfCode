@@ -16,7 +16,7 @@ namespace AdventOfCode.Solutions.Year<YEAR>
 
         public Day<DAY>() : base(<DAY>, <YEAR>, `"`")
         {
-            UseDebugInput = false;
+            
         }
 
         protected override string SolvePartOne()

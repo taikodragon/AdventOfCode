@@ -9,28 +9,36 @@ namespace AdventOfCode.Solutions.Year2020
 
     class Day02 : ASolution
     {
-        public Day02() : base(02, 2020, "Password Philosophy")
+        public Day02() : base(02, 2020, "Password Philosophy", false)
         {
-            UseDebugInput = false;
+            
         }
 
+        Regex extract = new Regex(@"(?<min>\d+)-(?<max>\d+) (?<letter>\w): (?<password>\w+)");
         protected override string SolvePartOne()
         {
-            int validPasswords = 0;
-            foreach(string password in Input.SplitByNewline()) {
-                var parts = password.Split(new char[] { ':', ' ', '-' }, StringSplitOptions.RemoveEmptyEntries);
-                int lower, upper;
-                lower = int.Parse(parts[0]);
-                upper = int.Parse(parts[1]);
-                char letter = parts[2][0];
-                int count = parts[3].Count(c => c == letter);
+            var groups = Input.SplitByNewline()
+                .Select(line => extract.Match(line).Groups)
+                .ToArray();
 
-                if( count >= lower && count <= upper ) {
-                    validPasswords++;
-                }
-            }
+            var lineData = groups
+                .Select(group => new {
+                    Min = int.Parse(group["min"].Value),
+                    Max = int.Parse(group["max"].Value),
+                    Letter = group["letter"].Value.First(),
+                    Password = group["password"].Value
+                })
+                .ToArray();
 
-            return validPasswords.ToString();
+            var validCount = lineData
+                .Select(data => new {
+                    data.Min,
+                    data.Max,
+                    LetterCount = data.Password.Count(c => c == data.Letter)
+                })
+                .Count(data => data.LetterCount >= data.Min && data.LetterCount <= data.Max);
+
+            return validCount.ToString();
         }
 
         protected override string SolvePartTwo()

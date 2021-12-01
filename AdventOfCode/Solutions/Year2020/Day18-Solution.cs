@@ -12,9 +12,9 @@ namespace AdventOfCode.Solutions.Year2020
         {
             Sum, Mult
         }
-        public Day18() : base(18, 2020, "Operation Order")
+        public Day18() : base(18, 2020, "Operation Order", false)
         {
-            UseDebugInput = false;
+            
         }
 
         long MultSum(string line, ref int at) {

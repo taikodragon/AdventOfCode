@@ -9,9 +9,9 @@ namespace AdventOfCode.Solutions.Year2020
     class Day03 : ASolution
     {
 
-        public Day03() : base(03, 2020, "Toboggan Trajectory")
+        public Day03() : base(03, 2020, "Toboggan Trajectory", false)
         {
-            UseDebugInput = false;
+            
         }
 
         int TreeSearch(char[][] map, int slopeColumn, int slopeRow)

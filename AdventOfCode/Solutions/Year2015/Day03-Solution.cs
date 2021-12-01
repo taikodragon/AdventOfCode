@@ -10,9 +10,9 @@ namespace AdventOfCode.Solutions.Year2015
     {
         
 
-        public Day03() : base(03, 2015, "Perfectly Spherical Houses in a Vacuum")
+        public Day03() : base(03, 2015, "Perfectly Spherical Houses in a Vacuum", false)
         {
-            UseDebugInput = false;
+            
         }
 
         protected override string SolvePartOne()
