@@ -14,7 +14,7 @@ namespace AdventOfCode.Solutions.Year<YEAR>
     class Day<DAY> : ASolution
     {
 
-        public Day<DAY>() : base(<DAY>, <YEAR>, `"`")
+        public Day<DAY>() : base(<DAY>, <YEAR>, `"`", false)
         {
             
         }
