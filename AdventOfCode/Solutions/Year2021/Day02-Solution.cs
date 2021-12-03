@@ -33,7 +33,7 @@ namespace AdventOfCode.Solutions.Year2021
                 }
             }
 
-            return $"{horiz * depth}";
+            return (horiz * depth).ToString();
         }
 
         protected override string SolvePartTwo()
@@ -49,7 +49,7 @@ namespace AdventOfCode.Solutions.Year2021
                 }
             }
 
-            return $"{horiz * depth}";
+            return (horiz * depth).ToString();
         }
     }
 }
