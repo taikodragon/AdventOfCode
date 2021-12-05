@@ -48,6 +48,8 @@ namespace AdventOfCode.Solutions.Year2021
     class Day05 : ASolution
     {
         List<Line> input;
+        Dictionary<IntCoord, int> cloud = new Dictionary<IntCoord, int>();
+
         public Day05() : base(05, 2021, "", false)
         {
 
@@ -55,12 +57,12 @@ namespace AdventOfCode.Solutions.Year2021
 
             input = Input.SplitByNewline()
                 .Select(st => {
-                    var coords = st.Split(" -> ");
-                    var c1 = coords[0].Split(',').Select(int.Parse).ToArray();
-                    var c2 = coords[1].Split(',').Select(int.Parse).ToArray();
+                    var coords = st.Split(new string[] { " -> ", "," }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(int.Parse)
+                        .ToArray();
                     var line =  new Line {
-                        Start = new IntCoord(c1[0], c1[1]),
-                        End = new IntCoord(c2[0], c2[1])
+                        Start = new IntCoord(coords[0], coords[1]),
+                        End = new IntCoord(coords[2], coords[3])
                     };
                     if (line.IsStraight) line.MakePointStraight();
                     else line.MakePointDiagonal();
@@ -71,10 +73,8 @@ namespace AdventOfCode.Solutions.Year2021
 
         protected override string SolvePartOne()
         {
-            var startLines = input.Where(l => l.IsStraight).ToList();
-            Dictionary<IntCoord, int> cloud = new Dictionary<IntCoord, int>();
-
-            foreach(var line in startLines) {
+            foreach(var line in input) {
+                if (!line.IsStraight) continue;
                 foreach (var pt in line.Points) {
                     if( cloud.ContainsKey(pt) ) {
                         cloud[pt]++;
@@ -84,14 +84,15 @@ namespace AdventOfCode.Solutions.Year2021
                 }
             }
 
-            return cloud.Where(kv => kv.Value >= 2).Count().ToString();
+            return cloud.Count(kv => kv.Value >= 2).ToString();
         }
 
         protected override string SolvePartTwo()
         {
-            Dictionary<IntCoord, int> cloud = new Dictionary<IntCoord, int>();
+            if (cloud.Count == 0) SolvePartOne();
 
             foreach (var line in input) {
+                if (line.IsStraight) continue;
                 foreach (var pt in line.Points) {
                     if (cloud.ContainsKey(pt)) {
                         cloud[pt]++;
@@ -102,16 +103,7 @@ namespace AdventOfCode.Solutions.Year2021
                 }
             }
 
-
-
-
-
-            //foreach (var kv in cloud.Where(kv => kv.Value >= 2).OrderBy(kv => kv.Key.X).ThenBy(kv => kv.Key.Y)) {
-            //    Trace.WriteLine(kv.ToString());
-            //}
-
-
-            return cloud.Where(kv => kv.Value >= 2).Count().ToString();
+            return cloud.Count(kv => kv.Value >= 2).ToString();
         }
 
     }
