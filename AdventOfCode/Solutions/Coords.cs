@@ -23,6 +23,9 @@ namespace AdventOfCode.Solutions
             set => X = value;
         }
 
+        public override string ToString() {
+            return string.Concat("X: ", X, " Y: ", Y);
+        }
 
         public int CompareTo([AllowNull] IntCoord other) {
             if( other == null ) return -1;
