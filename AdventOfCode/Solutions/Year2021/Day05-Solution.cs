@@ -50,7 +50,7 @@ namespace AdventOfCode.Solutions.Year2021
         List<Line> input;
         Dictionary<IntCoord, int> cloud = new Dictionary<IntCoord, int>();
 
-        public Day05() : base(05, 2021, "", false)
+        public Day05() : base(05, 2021, "Hydrothermal Venture", false)
         {
 
 

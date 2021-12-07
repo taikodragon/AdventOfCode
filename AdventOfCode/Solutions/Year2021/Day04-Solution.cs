@@ -17,7 +17,7 @@ namespace AdventOfCode.Solutions.Year2021
         List<int> draws;
         List<BingoSquare[,]> boards = new();
 
-        public Day04() : base(04, 2021, "", false)
+        public Day04() : base(04, 2021, "Giant Squid", false)
         {
             var parts = Input.Replace("\r","").Split("\n\n");
             draws = parts[0].Split(',').Select(int.Parse).ToList();
