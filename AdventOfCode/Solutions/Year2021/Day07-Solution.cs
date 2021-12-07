@@ -68,8 +68,10 @@ namespace AdventOfCode.Solutions.Year2021
             Dictionary<int, int> result = new();
 
             int min = crabPositions.Min(), max = crabPositions.Max();
-            for (int i = min; i <= max; i++) {
-                result[i] = FuelAtHoriz2(i);
+
+            int average = (int)crabPositions.Average();
+            for (int i = -2; i <= 2; i++) {
+                result[average + i] = FuelAtHoriz2(average + i);
             }
 
 
