@@ -18,53 +18,33 @@ namespace AdventOfCode.Solutions.Year2021
             { '(', ')' }, { '[', ']' }, { '{', '}' }, { '<', '>' }
         };
 
-        List<string> incompleteLines = new();
+        List<long> p2LineScores = new();
 
         public Day10() : base(10, 2021, "Syntax Scoring", false)
         {
-            
         }
 
         protected override string SolvePartOne() {
             int score = 0;
             Stack<char> openChunks = new Stack<char>();
-            bool IsMatchAndThenScore(char c, char matching) {
-                if (openChunks.Peek() != matching) {
-                    score += scoresp1[c];
-                    return false;
-                }
-                return true;
-            }
             foreach(string line in Input.SplitByNewline()) {
                 bool skip = false;
                 foreach (char c in line) {
                     if (skip) break;
-                    switch (c) {
-                        case '(':
-                        case '[':
-                        case '{':
-                        case '<':
-                            openChunks.Push(c);
-                            break;
-                        case ')':
-                            skip = !IsMatchAndThenScore(c, '(');
-                            openChunks.Pop();
-                            break;
-                        case ']':
-                            skip = !IsMatchAndThenScore(c, '[');
-                            openChunks.Pop();
-                            break;
-                        case '}':
-                            skip = !IsMatchAndThenScore(c, '{');
-                            openChunks.Pop();
-                            break;
-                        case '>':
-                            skip = !IsMatchAndThenScore(c, '<');
-                            openChunks.Pop();
-                            break;
+                    if( pairs.ContainsKey(c) ) openChunks.Push(c);
+                    else if( scoresp1.ContainsKey(c) ) {
+                        skip = pairs[openChunks.Peek()] != c;
+                        if (skip) { score += scoresp1[c]; }
+                        openChunks.Pop();
                     }
                 }
-                if (!skip) incompleteLines.Add(line);
+                if (!skip) {
+                    long p2score = 0;
+                    while (openChunks.Count > 0) {
+                        p2score = p2score * 5 + scoresp2[pairs[openChunks.Pop()]];
+                    }
+                    p2LineScores.Add(p2score);
+                }
                 openChunks.Clear();
             }
             return score.ToString();
@@ -72,34 +52,8 @@ namespace AdventOfCode.Solutions.Year2021
 
         protected override string SolvePartTwo()
         {
-            List<long> scores = new();
-            Stack<char> openChunks = new();
-            foreach (string line in incompleteLines) {
-                foreach (char c in line) {
-                    switch (c) {
-                        case '(':
-                        case '[':
-                        case '{':
-                        case '<':
-                            openChunks.Push(c);
-                            break;
-                        case ')':
-                        case ']':
-                        case '}':
-                        case '>':
-                            openChunks.Pop();
-                            break;
-                    }
-                }
-                long score = 0;
-                while (openChunks.Count > 0) {
-                    score = score * 5 + scoresp2[pairs[openChunks.Pop()]];
-                }
-                scores.Add(score);
-                openChunks.Clear();
-            }
-            scores.Sort();
-            return scores[scores.Count / 2].ToString();
+            p2LineScores.Sort();
+            return p2LineScores[p2LineScores.Count / 2].ToString();
         }
     }
 }
