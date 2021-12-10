@@ -8,37 +8,27 @@ namespace AdventOfCode.Solutions.Year2021
 
     class Day10 : ASolution
     {
-        Dictionary<char, int> scoresp1 = new() {
-            { ')', 3 },
-            { ']', 57 },
-            { '}', 1197 },
-            { '>', 25137 }
+        static Dictionary<char, int> scoresp1 = new() {
+            { ')', 3 }, { ']', 57 }, { '}', 1197 }, { '>', 25137 }
         };
+        static Dictionary<char, int> scoresp2 = new() {
+            { ')', 1 }, { ']', 2 }, { '}', 3 }, { '>', 4 }
+        };
+        static Dictionary<char, char> pairs = new() {
+            { '(', ')' }, { '[', ']' }, { '{', '}' }, { '<', '>' }
+        };
+
         List<string> incompleteLines = new();
-        Dictionary<char, int> scoresp2 = new() {
-            { ')', 1 },
-            { ']', 2 },
-            { '}', 3 },
-            { '>', 4 }
-        };
-        Dictionary<char, char> pairs = new() {
-            { '(', ')' },
-            { '[', ']' },
-            { '{', '}' },
-            { '<', '>' }
-        };
 
         public Day10() : base(10, 2021, "Syntax Scoring", false)
         {
             
         }
 
-
-
         protected override string SolvePartOne() {
             int score = 0;
             Stack<char> openChunks = new Stack<char>();
-            bool IsMatchAndScore(char c, char matching) {
+            bool IsMatchAndThenScore(char c, char matching) {
                 if (openChunks.Peek() != matching) {
                     score += scoresp1[c];
                     return false;
@@ -57,19 +47,19 @@ namespace AdventOfCode.Solutions.Year2021
                             openChunks.Push(c);
                             break;
                         case ')':
-                            skip = !IsMatchAndScore(c, '(');
+                            skip = !IsMatchAndThenScore(c, '(');
                             openChunks.Pop();
                             break;
                         case ']':
-                            skip = !IsMatchAndScore(c, '[');
+                            skip = !IsMatchAndThenScore(c, '[');
                             openChunks.Pop();
                             break;
                         case '}':
-                            skip = !IsMatchAndScore(c, '{');
+                            skip = !IsMatchAndThenScore(c, '{');
                             openChunks.Pop();
                             break;
                         case '>':
-                            skip = !IsMatchAndScore(c, '<');
+                            skip = !IsMatchAndThenScore(c, '<');
                             openChunks.Pop();
                             break;
                     }
@@ -83,7 +73,7 @@ namespace AdventOfCode.Solutions.Year2021
         protected override string SolvePartTwo()
         {
             List<long> scores = new();
-            Stack<char> openChunks = new Stack<char>();
+            Stack<char> openChunks = new();
             foreach (string line in incompleteLines) {
                 foreach (char c in line) {
                     switch (c) {
@@ -94,14 +84,8 @@ namespace AdventOfCode.Solutions.Year2021
                             openChunks.Push(c);
                             break;
                         case ')':
-                            openChunks.Pop();
-                            break;
                         case ']':
-                            openChunks.Pop();
-                            break;
                         case '}':
-                            openChunks.Pop();
-                            break;
                         case '>':
                             openChunks.Pop();
                             break;
