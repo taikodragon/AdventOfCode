@@ -73,7 +73,7 @@ namespace AdventOfCode.Solutions
         public static List<string> SplitByNewline(this string input, bool blankLines = true, bool shouldTrim = false)
         {
             return input
-                .Split(new[] { "\r", "\n", "\r\n" }, StringSplitOptions.None)
+                .Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None)
                 .Where(s => blankLines || !string.IsNullOrWhiteSpace(s))
                 .Select(s => shouldTrim ? s.Trim() : s)
                 .ToList();
