@@ -89,9 +89,9 @@ namespace AdventOfCode.Solutions
                     DateTime CURRENT_EST = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Utc).AddHours(-5);
                     if( CURRENT_EST < new DateTime(Year, 12, Day) ) throw new InvalidOperationException();
 
-                    using( var client = new WebClient() ) {
-                        client.Headers.Add(HttpRequestHeader.Cookie, Program.Config.Cookie);
-                        input = client.DownloadString(INPUT_URL).Trim();
+                    using( var client = new HttpClient() ) {
+                        client.DefaultRequestHeaders.Add("Cookie", Program.Config.Cookie);
+                        input = client.GetStringAsync(INPUT_URL).Result.Trim();
                         File.WriteAllText(INPUT_FILEPATH, input);
                     }
                 }
