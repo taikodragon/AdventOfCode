@@ -9,13 +9,13 @@ namespace AdventOfCode.Solutions.Year2015
     {
         class LogicGate
         {
-            string[] myRequiredSignals;
+            string[]? myRequiredSignals;
             public ushort? LHSValue { get; private set; }
-            public string LHS { get; private set; }
+            public string? LHS { get; private set; }
             public ushort? RHSValue { get; private set; }
-            public string RHS { get; private set; }
-            public string Operator { get; set; }
-            public string OutputTo { get; set; }
+            public string? RHS { get; private set; }
+            public string? Operator { get; set; }
+            public string? OutputTo { get; set; }
 
             public void SetLHS(string value) {
                 if( ushort.TryParse(value, out ushort val) ) {
@@ -37,9 +37,9 @@ namespace AdventOfCode.Solutions.Year2015
                     RHS = value;
                 }
             }
-            public bool Simulate(Dictionary<string,ushort> signals, Dictionary<string,List<LogicGate>> related, List<LogicGate> parentSims = null) {
+            public bool Simulate(Dictionary<string,ushort> signals, Dictionary<string,List<LogicGate>> related, List<LogicGate>? parentSims = null) {
                 if( parentSims?.Contains(this) == true ) throw new Exception("Loop detected!");
-                if( signals.ContainsKey(OutputTo) ) return true;
+                if( signals.ContainsKey(OutputTo!) ) return true;
                 foreach(string depSignal in RequiresSignals()) {
                     if( !signals.ContainsKey(depSignal) ) return false;
                 }
@@ -48,34 +48,34 @@ namespace AdventOfCode.Solutions.Year2015
                     default: return true;
                     case "AND":
                         lhs = LHSValue ?? signals[LHS];
-                        rhs = RHSValue ?? signals[RHS];
-                        signals[OutputTo] = (ushort)(lhs & rhs);
+                        rhs = RHSValue ?? signals[RHS!];
+                        signals[OutputTo!] = (ushort)(lhs & rhs);
                         break;
                     case "OR":
                         lhs = LHSValue ?? signals[LHS];
-                        rhs = RHSValue ?? signals[RHS];
-                        signals[OutputTo] = (ushort)(lhs | rhs);
+                        rhs = RHSValue ?? signals[RHS!];
+                        signals[OutputTo!] = (ushort)(lhs | rhs);
                         break;
                     case "LSHIFT":
                         lhs = LHSValue ?? signals[LHS];
-                        rhs = RHSValue ?? signals[RHS];
-                        signals[OutputTo] = (ushort)(lhs << rhs);
+                        rhs = RHSValue ?? signals[RHS!];
+                        signals[OutputTo!] = (ushort)(lhs << rhs);
                         break;
                     case "RSHIFT":
                         lhs = LHSValue ?? signals[LHS];
-                        rhs = RHSValue ?? signals[RHS];
-                        signals[OutputTo] = (ushort)(lhs >> rhs);
+                        rhs = RHSValue ?? signals[RHS!];
+                        signals[OutputTo!] = (ushort)(lhs >> rhs);
                         break;
                     case "NOT":
-                        rhs = RHSValue ?? signals[RHS];
-                        signals[OutputTo] = (ushort)(~rhs);
+                        rhs = RHSValue ?? signals[RHS!];
+                        signals[OutputTo!] = (ushort)(~rhs);
                         break;
                     case "COPY":
-                        signals[OutputTo] = RHSValue ?? signals[RHS];
+                        signals[OutputTo!] = RHSValue ?? signals[RHS!];
                         break;
                 }
-                if( related.TryGetValue(OutputTo, out List<LogicGate> otherGates) ) {
-                    parentSims = parentSims ?? new List<LogicGate>();
+                if( related.TryGetValue(OutputTo!, out List<LogicGate>? otherGates) ) {
+                    parentSims ??= new List<LogicGate>();
                     parentSims.Add(this);
                     foreach( var gate in otherGates ) {
                         if( gate == this ) continue;
@@ -89,7 +89,7 @@ namespace AdventOfCode.Solutions.Year2015
                 if( myRequiredSignals != null ) return myRequiredSignals;
                 List<string> result = new List<string>();
                 switch( Operator ) {
-                    default: return new string[] { };
+                    default: return Array.Empty<string>();
                     case "AND":
                     case "OR":
                     case "LSHIFT":
