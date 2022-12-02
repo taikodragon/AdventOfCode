@@ -7,9 +7,10 @@ using System.Text.RegularExpressions;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 02, "Password Philosophy")]
     class Day02A : ASolution
     {
-        public Day02A() : base(02, 2020, "Password Philosophy", false)
+        public Day02A() : base(false)
         {
         }
 

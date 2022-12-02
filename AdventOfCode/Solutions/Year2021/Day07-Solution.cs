@@ -6,11 +6,12 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2021
 {
 
+    [DayInfo(2021, 07, "The Treachery of Whales")]
     class Day07 : ASolution
     {
         List<int> crabPositions;
 
-        public Day07() : base(07, 2021, "The Treachery of Whales", false)
+        public Day07() : base(false)
         {
             crabPositions = Input.Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(int.Parse)

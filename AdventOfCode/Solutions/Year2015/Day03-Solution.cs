@@ -6,11 +6,12 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2015
 {
 
+    [DayInfo(2015, 03, "Perfectly Spherical Houses in a Vacuum")]
     class Day03 : ASolution
     {
         
 
-        public Day03() : base(03, 2015, "Perfectly Spherical Houses in a Vacuum", false)
+        public Day03() : base(false)
         {
             
         }

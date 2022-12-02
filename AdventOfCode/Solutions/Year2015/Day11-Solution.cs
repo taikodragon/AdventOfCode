@@ -7,13 +7,14 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2015
 {
 
+    [DayInfo(2015, 11, "Corporate Policy")]
     class Day11 : ASolution
     {
         static readonly char[] letters = "abcdefghjkmnpqrstuvwxyz".ToCharArray();
         static readonly int lettersCount = letters.Length;
 
         string input;
-        public Day11() : base(11, 2015, "Corporate Policy", false)
+        public Day11() : base(false)
         {
             DebugInput = "abcdefgh";
             UseDebugInput = true;

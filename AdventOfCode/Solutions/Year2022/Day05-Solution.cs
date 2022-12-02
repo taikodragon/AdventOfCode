@@ -6,25 +6,24 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace AdventOfCode.Solutions.Year2022
+namespace AdventOfCode.Solutions.Year2022;
+
+[DayInfo(2022, 05, "")]
+class Day05 : ASolution
 {
 
-    class Day05 : ASolution
+    public Day05() : base(false)
     {
+        
+    }
 
-        public Day05() : base(05, 2022, "", false)
-        {
-            
-        }
+    protected override string SolvePartOne()
+    {
+        return null;
+    }
 
-        protected override string SolvePartOne()
-        {
-            return null;
-        }
-
-        protected override string SolvePartTwo()
-        {
-            return null;
-        }
+    protected override string SolvePartTwo()
+    {
+        return null;
     }
 }

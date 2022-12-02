@@ -6,11 +6,12 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 06, "Custom Customs")]
     class Day06 : ASolution
     {
         List<string> lines = new List<string>();
 
-        public Day06() : base(06, 2020, "Custom Customs", false)
+        public Day06() : base(false)
         {
             
 

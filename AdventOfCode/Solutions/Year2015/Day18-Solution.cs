@@ -6,10 +6,11 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2015
 {
 
+    [DayInfo(2015, 18, "")]
     class Day18 : ASolution
     {
 
-        public Day18() : base(18, 2015, "", false)
+        public Day18() : base(false)
         {
         }
 

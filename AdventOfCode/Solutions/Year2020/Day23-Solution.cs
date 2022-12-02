@@ -7,6 +7,7 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 23, "Crab Cups")]
     class Day23 : ASolution
     {
         class CupLinkedList
@@ -62,7 +63,7 @@ namespace AdventOfCode.Solutions.Year2020
 
         List<int> startingCups = new List<int>();
 
-        public Day23() : base(23, 2020, "Crab Cups", false)
+        public Day23() : base(false)
         {
             
 

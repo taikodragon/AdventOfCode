@@ -6,13 +6,14 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2015
 {
 
+    [DayInfo(2015, 05, "Doesn't He Have Intern-Elves For This?")]
     class Day05 : ASolution
     {
         string vowels = "aeiou";
         List<string> forbidden = new List<string>() {
             "ab", "cd", "pq", "xy"
         };
-        public Day05() : base(05, 2015, "Doesn't He Have Intern-Elves For This?", false)
+        public Day05() : base(false)
         {
             
 

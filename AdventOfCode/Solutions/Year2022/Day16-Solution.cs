@@ -9,10 +9,12 @@ using System.Text.RegularExpressions;
 namespace AdventOfCode.Solutions.Year2022
 {
 
+
+    [DayInfo(2022, 16, "")]
     class Day16 : ASolution
     {
 
-        public Day16() : base(16, 2022, "", false)
+        public Day16() : base(false)
         {
             
         }

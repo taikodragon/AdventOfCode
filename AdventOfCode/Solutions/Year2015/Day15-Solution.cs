@@ -6,6 +6,7 @@ using System.Text;
 
 namespace AdventOfCode.Solutions.Year2015
 {
+    [DayInfo(2015, 15, "Science for Hungry People")]
     class Day15 : ASolution
     {
         class Ingr
@@ -20,7 +21,7 @@ namespace AdventOfCode.Solutions.Year2015
         }
 
         List<Ingr> ingrs = new List<Ingr>();
-        public Day15() : base(15, 2015, "Science for Hungry People", false)
+        public Day15() : base(false)
         {
             
 

@@ -6,11 +6,12 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2021
 {
 
+    [DayInfo(2021, 02, "Dive!")]
     class Day02 : ASolution
     {
         List<(string command, int value)> input;
 
-        public Day02() : base(02, 2021, "Dive!", false)
+        public Day02() : base(false)
         {
             input = Input.SplitByNewline(false, true)
                 .Select(s => {

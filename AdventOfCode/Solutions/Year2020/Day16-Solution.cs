@@ -7,6 +7,7 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 16, "Ticket Translation")]
     class Day16 : ASolution
     {
         class Rule
@@ -19,7 +20,7 @@ namespace AdventOfCode.Solutions.Year2020
             }
         }
 
-        public Day16() : base(16, 2020, "Ticket Translation", false)
+        public Day16() : base(false)
         {
             
         }

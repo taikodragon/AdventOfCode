@@ -6,6 +6,7 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2021
 {
 
+    [DayInfo(2021, 10, "Syntax Scoring")]
     class Day10 : ASolution
     {
         static Dictionary<char, int> scoresp1 = new() {
@@ -20,7 +21,7 @@ namespace AdventOfCode.Solutions.Year2021
 
         List<long> p2LineScores = new();
 
-        public Day10() : base(10, 2021, "Syntax Scoring", false)
+        public Day10() : base(false)
         {
         }
 

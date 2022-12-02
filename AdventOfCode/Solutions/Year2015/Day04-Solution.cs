@@ -8,10 +8,11 @@ using System.Threading;
 namespace AdventOfCode.Solutions.Year2015
 {
 
+    [DayInfo(2015, 04, "The Ideal Stocking Stuffer")]
     class Day04 : ASolution
     {
 
-        public Day04() : base(04, 2015, "The Ideal Stocking Stuffer", false)
+        public Day04() : base(false)
         {
             
             baseStr = Input;

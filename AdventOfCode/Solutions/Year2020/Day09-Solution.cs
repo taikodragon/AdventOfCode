@@ -6,11 +6,12 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 09, "Encoding Error")]
     class Day09 : ASolution
     {
         List<long> numbers;
         int preambleLength;
-        public Day09() : base(09, 2020, "Encoding Error", false)
+        public Day09() : base(false)
         {
             
             preambleLength = UseDebugInput ? 5 : 25;

@@ -7,6 +7,7 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 20, "Jurassic Jigsaw")]
     class Day20 : ASolution
     {
         const int tileDims = 10;
@@ -102,7 +103,7 @@ namespace AdventOfCode.Solutions.Year2020
             Dictionary<long, Tile> tiles = new Dictionary<long, Tile>();
         Dictionary<string, List<(long id, Side side)>> sideCache = new Dictionary<string, List<(long, Side)>>();
         int dim;
-        public Day20() : base(20, 2020, "Jurassic Jigsaw", false)
+        public Day20() : base(false)
         {
             
 

@@ -10,6 +10,7 @@ namespace AdventOfCode.Solutions.Year2021
         public int Num { get; set; }
         public bool Selected { get; set; }
     }
+    [DayInfo(2021, 04, "Giant Squid")]
     class Day04 : ASolution
     {
         const int BOARD_SIZE = 5;
@@ -17,7 +18,7 @@ namespace AdventOfCode.Solutions.Year2021
         List<int> draws;
         List<BingoSquare[,]> boards = new();
 
-        public Day04() : base(04, 2021, "Giant Squid", false)
+        public Day04() : base(false)
         {
             var parts = Input.Replace("\r","").Split("\n\n");
             draws = parts[0].Split(',').Select(int.Parse).ToList();

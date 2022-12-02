@@ -45,12 +45,13 @@ namespace AdventOfCode.Solutions.Year2021
             }
         }
     }
+    [DayInfo(2021, 05, "Hydrothermal Venture")]
     class Day05 : ASolution
     {
         List<Line> input;
         Dictionary<IntCoord, int> cloud = new Dictionary<IntCoord, int>();
 
-        public Day05() : base(05, 2021, "Hydrothermal Venture", false)
+        public Day05() : base(false)
         {
 
 

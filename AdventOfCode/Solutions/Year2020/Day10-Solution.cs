@@ -7,11 +7,12 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 10, "Adapter Array")]
     class Day10 : ASolution
     {
         List<int> lines;
 
-        public Day10() : base(10, 2020, "Adapter Array", false)
+        public Day10() : base(false)
         {
             
 

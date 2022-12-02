@@ -6,11 +6,12 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 08, "Handheld Halting")]
     class Day08 : ASolution
     {
         AsmProcessor pc = new AsmProcessor();
         List<string> lines;
-        public Day08() : base(08, 2020, "Handheld Halting", false)
+        public Day08() : base(false)
         {
             
 

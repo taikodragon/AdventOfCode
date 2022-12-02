@@ -6,13 +6,14 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 18, "Operation Order")]
     class Day18 : ASolution
     {
         enum Op
         {
             Sum, Mult
         }
-        public Day18() : base(18, 2020, "Operation Order", false)
+        public Day18() : base(false)
         {
             
         }

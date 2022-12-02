@@ -7,6 +7,7 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2021
 {
 
+    [DayInfo(2021, 11, "Dumbo Octopus")]
     class Day11 : ASolution
     {
         IntCoord[] adjacent = new IntCoord[] {
@@ -20,7 +21,7 @@ namespace AdventOfCode.Solutions.Year2021
             new IntCoord(0, -1)
         };
 
-        public Day11() : base(11, 2021, "Dumbo Octopus", false)
+        public Day11() : base(false)
         {
 
 

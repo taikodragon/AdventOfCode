@@ -6,11 +6,12 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2015
 {
 
+    [DayInfo(2015, 16, "Aunt Sue")]
     class Day16 : ASolution
     {
         Dictionary<int, Dictionary<string, int?>> sues = new Dictionary<int, Dictionary<string, int?>>();
 
-        public Day16() : base(16, 2015, "Aunt Sue", false)
+        public Day16() : base(false)
         {
             
 

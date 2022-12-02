@@ -6,12 +6,13 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 22, "Crab Combat")]
     class Day22 : ASolution
     {
         const int p1 = 1, p2 = 2;
         Dictionary<int, Queue<int>> playersOriginal = new Dictionary<int, Queue<int>>(2);
 
-        public Day22() : base(22, 2020, "Crab Combat", false)
+        public Day22() : base(false)
         {
             
 

@@ -8,12 +8,13 @@ using System.Text.RegularExpressions;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 19, "Monster Messages")]
     class Day19 : ASolution
     {
         Dictionary<int, char> roots = new Dictionary<int, char>();
         Dictionary<int, List<int[]>> refRules = new Dictionary<int, List<int[]>>();
         List<string> lines;
-        public Day19() : base(19, 2020, "Monster Messages", false)
+        public Day19() : base(false)
         {
             
         }

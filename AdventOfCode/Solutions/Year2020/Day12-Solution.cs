@@ -6,6 +6,7 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 12, "Rain Risk")]
     class Day12 : ASolution
     {
         enum Direction
@@ -16,7 +17,7 @@ namespace AdventOfCode.Solutions.Year2020
 
         List<(Direction dir, int value)> instructions;
 
-        public Day12() : base(12, 2020, "Rain Risk", false)
+        public Day12() : base(false)
         {
             
 

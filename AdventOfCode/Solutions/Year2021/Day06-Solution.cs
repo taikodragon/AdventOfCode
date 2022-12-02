@@ -7,6 +7,7 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2021
 {
 
+    [DayInfo(2021, 06, "Lanternfish")]
     class Day06 : ASolution
     {
         Dictionary<ulong, ulong> fishes = new(8);
@@ -14,7 +15,7 @@ namespace AdventOfCode.Solutions.Year2021
         int p1Days = 0;
 
 
-        public Day06() : base(06, 2021, "Lanternfish", false)
+        public Day06() : base(false)
         {
             p1Days = UseDebugInput ? 18 : 80;
         }

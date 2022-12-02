@@ -5,13 +5,14 @@ using System.Text;
 
 namespace AdventOfCode.Solutions.Year2020
 {
+    [DayInfo(2020, 11, "Seating System")]
     class Day11 : ASolution
     {
         
         const char floor = '.', empty = 'L', occupied = '#';
 
         char[,] map;
-        public Day11() : base(11, 2020, "Seating System", false)
+        public Day11() : base(false)
         {
             
 

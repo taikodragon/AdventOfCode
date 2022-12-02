@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 
 namespace AdventOfCode.Solutions
@@ -23,12 +24,16 @@ namespace AdventOfCode.Solutions
         public long Part1Ticks => _part1Time;
         public long Part2Ticks => _part2Time;
         public long ContructionTime { get; set; }
+        public long ParseTime { get; set; }
         protected bool UseDebugInput { get; set; }
 
-        private protected ASolution(int day, int year, string title, bool useDebugInput) {
-            Day = day;
-            Year = year;
-            Title = title;
+        private protected ASolution(bool useDebugInput) {
+            var dayInfo = GetType().GetCustomAttribute<DayInfoAttribute>();
+            if (dayInfo is null) throw new Exception("Solution must have DayInfo!");
+
+            Day = dayInfo.Day;
+            Year = dayInfo.Year;
+            Title = dayInfo.Title;
             _input = new Lazy<string>(LoadInput);
             _part1 = new Lazy<string>(() => SafelySolve(SolvePartOne, out _part1Time));
             _part2 = new Lazy<string>(() => SafelySolve(SolvePartTwo, out _part2Time));
@@ -37,6 +42,7 @@ namespace AdventOfCode.Solutions
 
         public void Solve(int part = 0) {
             if( Input == null ) return;
+            SafelyParseInput();
 
             bool doOutput = false;
             StringBuilder output = new StringBuilder($"--- Day {Day}: {Title} --- \n");
@@ -45,7 +51,8 @@ namespace AdventOfCode.Solutions
             }
 
             output.Append($"Ctor in {TimeSpan.FromTicks(ContructionTime).TotalMilliseconds}ms\n");
-            if( part != 2 ) {
+            output.Append($"Parse in {TimeSpan.FromTicks(ParseTime).TotalMilliseconds}ms\n");
+            if ( part != 2 ) {
                 if( Part1 != "" ) {
                     output.Append($"Part 1:\tin {TimeSpan.FromTicks(_part1Time).TotalMilliseconds}ms\n{Part1}\n\n");
                     doOutput = true;
@@ -73,27 +80,25 @@ namespace AdventOfCode.Solutions
         }
 
         string LoadInput() {
+
             string DEBUGINPUT_FILEPATH = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, $"../../../../Solutions/Year{Year}/Day{Day:D2}-debugInput"));
             string INPUT_FILEPATH = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, $"../../../../Solutions/Year{Year}/Day{Day:D2}-input"));
             string INPUT_URL = $"https://adventofcode.com/{Year}/day/{Day}/input";
             string input = "";
 
             if( UseDebugInput && File.Exists(DEBUGINPUT_FILEPATH) && new FileInfo(DEBUGINPUT_FILEPATH).Length > 0 ) {
-                input = DebugInput = File.ReadAllText(DEBUGINPUT_FILEPATH);
+                input = DebugInput = File.ReadAllText(DEBUGINPUT_FILEPATH).Trim();
             }
             else if( File.Exists(INPUT_FILEPATH) && new FileInfo(INPUT_FILEPATH).Length > 0 ) {
-                input = File.ReadAllText(INPUT_FILEPATH);
+                input = File.ReadAllText(INPUT_FILEPATH).Trim();
             }
             else {
                 try {
                     DateTime CURRENT_EST = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Utc).AddHours(-5);
                     if( CURRENT_EST < new DateTime(Year, 12, Day) ) throw new InvalidOperationException();
 
-                    using( var client = new HttpClient() ) {
-                        client.DefaultRequestHeaders.Add("Cookie", Program.Config.Cookie);
-                        input = client.GetStringAsync(INPUT_URL).Result.Trim();
-                        File.WriteAllText(INPUT_FILEPATH, input);
-                    }
+                    input = Program.Http.GetStringAsync(INPUT_URL).Result.Trim();
+                    File.WriteAllText(INPUT_FILEPATH, input);
                 }
                 catch( WebException e ) {
                     var statusCode = ((HttpWebResponse)e.Response).StatusCode;
@@ -117,6 +122,19 @@ namespace AdventOfCode.Solutions
         protected abstract string SolvePartOne();
         protected abstract string SolvePartTwo();
 
+        protected virtual void ParseInput() { }
+
+        private void SafelyParseInput() {
+            Stopwatch clock = new Stopwatch(); clock.Start();
+            try {
+                ParseInput();
+            }
+            catch (Exception ex) {
+                Trace.TraceError($"Caught Exception:\r\n{ex}");
+            }
+            clock.Stop();
+            ParseTime = clock.ElapsedTicks;
+        }
         private string SafelySolve(Func<string> partSolver, out long timeTaken) {
             Stopwatch clock = new Stopwatch(); clock.Start();
             string solution = string.Empty;
@@ -125,7 +143,6 @@ namespace AdventOfCode.Solutions
             }
             catch( Exception ex ) {
                 Trace.TraceError($"Caught Exception:\r\n{ex}");
-                Debugger.Break();
             }
             clock.Stop();
             timeTaken = clock.ElapsedTicks;

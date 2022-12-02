@@ -8,6 +8,7 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2015
 {
 
+    [DayInfo(2015, 06, "Probably a Fire Hazard")]
     class Day06 : ASolution
     {
         enum LightState { On, Off, Toggle };
@@ -18,7 +19,7 @@ namespace AdventOfCode.Solutions.Year2015
             public IntCoord Upper { get; set; }
         }
         List<Instruction> instructions = new List<Instruction>();
-        public Day06() : base(06, 2015, "Probably a Fire Hazard", false)
+        public Day06() : base(false)
         {
             
 

@@ -7,6 +7,7 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2021
 {
 
+    [DayInfo(2021, 09, "Smoke Basin")]
     class Day09 : ASolution
     {
         Dictionary<IntCoord, int> heightMap = new();
@@ -17,7 +18,7 @@ namespace AdventOfCode.Solutions.Year2021
             left = new IntCoord(0, -1),
             right = new IntCoord(0, 1);
 
-        public Day09() : base(09, 2021, "Smoke Basin", false)
+        public Day09() : base(false)
         {
             int row = 0;
             foreach(string line in Input.SplitByNewline()) {

@@ -7,6 +7,7 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2015
 {
 
+    [DayInfo(2015, 09, "All in a Single Night")]
     class Day09 : ASolution
     {
         class Route
@@ -86,7 +87,7 @@ namespace AdventOfCode.Solutions.Year2015
         Dictionary<string, List<Route>> possibleRoutes = new Dictionary<string, List<Route>>();
         List<Route> routes = new List<Route>(20000);
 
-        public Day09() : base(09, 2015, "All in a Single Night", false)
+        public Day09() : base(false)
         {
             
 

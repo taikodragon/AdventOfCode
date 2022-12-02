@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 13, "Shuttle Search")]
     class Day13 : ASolution
     {
 
-        public Day13() : base(13, 2020, "Shuttle Search", false)
+        public Day13() : base(false)
         {
             
 

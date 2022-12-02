@@ -7,9 +7,10 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2021
 {
 
+    [DayInfo(2021, 08, "Seven Segment Search")]
     class Day08 : ASolution
     {
-        public Day08() : base(08, 2021, "Seven Segment Search", false)
+        public Day08() : base(false)
         {
         }
 

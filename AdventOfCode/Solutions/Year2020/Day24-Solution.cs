@@ -7,6 +7,7 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 24, "Lobby Layout")]
     class Day24 : ASolution
     {
         const bool isTracing = false;
@@ -14,7 +15,7 @@ namespace AdventOfCode.Solutions.Year2020
         HexDirection[] directions = new HexDirection[] { HexDirection.W, HexDirection.NW, HexDirection.NE, HexDirection.E, HexDirection.SE, HexDirection.SW };
 
         Dictionary<(int ring, int pos), HexNode<bool>> part1Grid;
-        public Day24() : base(24, 2020, "Lobby Layout", false) {
+        public Day24() : base(false) {
             
         }
 

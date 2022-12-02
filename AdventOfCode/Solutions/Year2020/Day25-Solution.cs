@@ -7,6 +7,7 @@ using System.Threading;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 25, "")]
     class Day25 : ASolution
     {
         const long encmod = 20201227;
@@ -14,7 +15,7 @@ namespace AdventOfCode.Solutions.Year2020
 
         bool continueGuessing = true;
 
-        public Day25() : base(25, 2020, "", false)
+        public Day25() : base(false)
         {
             
 

@@ -7,6 +7,7 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2015
 {
 
+    [DayInfo(2015, 14, "Reindeer Olympics")]
     class Day14 : ASolution
     {
         class Flyer
@@ -23,7 +24,7 @@ namespace AdventOfCode.Solutions.Year2015
             public int Points { get; set; }
         }
 
-        public Day14() : base(14, 2015, "Reindeer Olympics", false)
+        public Day14() : base(false)
         {
             
         }

@@ -8,10 +8,11 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2015
 {
 
+    [DayInfo(2015, 12, "JSAbacusFramework.io")]
     class Day12 : ASolution
     {
 
-        public Day12() : base(12, 2015, "JSAbacusFramework.io", false)
+        public Day12() : base(false)
         {
             
         }

@@ -5,6 +5,7 @@ using System.Text;
 
 namespace AdventOfCode.Solutions.Year2015
 {
+    [DayInfo(2015, 07, "Some Assembly Required")]
     class Day07 : ASolution
     {
         class LogicGate
@@ -107,7 +108,7 @@ namespace AdventOfCode.Solutions.Year2015
         }
         List<LogicGate> rootGates = new List<LogicGate>();
         Dictionary<string, List<LogicGate>> relatedGates = new Dictionary<string, List<LogicGate>>();
-        public Day07() : base(07, 2015, "Some Assembly Required", false)
+        public Day07() : base(false)
         {
             UseDebugInput = true;
 

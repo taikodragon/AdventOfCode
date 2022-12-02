@@ -11,6 +11,7 @@ namespace AdventOfCode.Solutions.Year2020
         public HashSet<string> Ingredients = new HashSet<string>();
         public HashSet<string> Allergens = new HashSet<string>();
     }
+    [DayInfo(2020, 21, "Allergen Assessment")]
     class Day21 : ASolution
     {
         List<Food> foods = new List<Food>();
@@ -19,7 +20,7 @@ namespace AdventOfCode.Solutions.Year2020
         Dictionary<string, string> allergenToIngredient = new Dictionary<string, string>();
         HashSet<string> allIngredients = new HashSet<string>();
 
-        public Day21() : base(21, 2020, "Allergen Assessment", false)
+        public Day21() : base(false)
         {
             
 

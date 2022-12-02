@@ -6,11 +6,12 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2015
 {
 
+    [DayInfo(2015, 02, "I Was Told There Would Be No Math")]
     class Day02 : ASolution
     {
         List<(int l, int w, int h)> presents;
 
-        public Day02() : base(02, 2015, "I Was Told There Would Be No Math", false)
+        public Day02() : base(false)
         {
             
 

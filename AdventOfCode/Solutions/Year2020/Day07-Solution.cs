@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 07, "Handy Haversacks")]
     class Day07 : ASolution
     {
         class BagRule
@@ -19,7 +20,7 @@ namespace AdventOfCode.Solutions.Year2020
         Dictionary<string, List<string>> containedBy = new Dictionary<string, List<string>>();
         Dictionary<string, List<BagRule>> rules = new Dictionary<string, List<BagRule>>();
         List<string> lines;
-        public Day07() : base(07, 2020, "Handy Haversacks", false)
+        public Day07() : base(false)
         {
             
 

@@ -6,13 +6,14 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2021
 {
 
+    [DayInfo(2021, 03, "Binary Diagnostic")]
     class Day03 : ASolution
     {
         List<string> input;
         int halfSize;
         int numberSize;
 
-        public Day03() : base(03, 2021, "Binary Diagnostic", false)
+        public Day03() : base(false)
         {
             input = Input.SplitByNewline(false, true)
                 .ToList();

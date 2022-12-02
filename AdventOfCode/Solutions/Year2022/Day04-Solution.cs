@@ -7,10 +7,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AdventOfCode.Solutions.Year2022;
+[DayInfo(2022, 04, "")]
 class Day04 : ASolution
 {
 
-    public Day04() : base(04, 2022, "", false)
+    public Day04() : base(false)
     {
         
     }

@@ -6,10 +6,11 @@ using System.Text;
 namespace AdventOfCode.Solutions.Year2020
 {
 
+    [DayInfo(2020, 05, "Binary Boarding")]
     class Day05 : ASolution
     {
         List<string> lines = new List<string>();
-        public Day05() : base(05, 2020, "Binary Boarding", false)
+        public Day05() : base(false)
         {
             
             lines = Input.SplitByNewline();
