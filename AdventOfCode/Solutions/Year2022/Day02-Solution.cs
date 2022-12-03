@@ -9,7 +9,7 @@ using Windows.ApplicationModel.Appointments;
 
 namespace AdventOfCode.Solutions.Year2022;
 
-[DayInfo(2022, 02, "")]
+[DayInfo(2022, 02, "Rock Paper Scissors")]
 class Day02 : ASolution
 {
     const string rock = "rock", paper = "paper", scissors = "scissors";
