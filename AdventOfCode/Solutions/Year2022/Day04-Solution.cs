@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AdventOfCode.Solutions.Year2022;
-[DayInfo(2022, 04, "")]
+[DayInfo(2022, 04, "Camp Cleanup")]
 class Day04 : ASolution
 {
     class SectionAssignment {

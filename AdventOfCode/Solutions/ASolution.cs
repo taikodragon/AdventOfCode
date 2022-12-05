@@ -87,10 +87,10 @@ namespace AdventOfCode.Solutions
             string input = "";
 
             if( UseDebugInput && File.Exists(DEBUGINPUT_FILEPATH) && new FileInfo(DEBUGINPUT_FILEPATH).Length > 0 ) {
-                input = DebugInput = File.ReadAllText(DEBUGINPUT_FILEPATH).Trim();
+                input = DebugInput = File.ReadAllText(DEBUGINPUT_FILEPATH).Trim('\r', '\n');
             }
             else if( File.Exists(INPUT_FILEPATH) && new FileInfo(INPUT_FILEPATH).Length > 0 ) {
-                input = File.ReadAllText(INPUT_FILEPATH).Trim();
+                input = File.ReadAllText(INPUT_FILEPATH).Trim('\r', '\n');
             }
             else {
                 try {
