@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace AdventOfCode.Solutions.Year2022;
 
-[DayInfo(2022, 05, "")]
+[DayInfo(2022, 05, "Supply Stacks")]
 class Day05 : ASolution
 {
     Dictionary<int, List<char>> crates = new();
@@ -20,7 +20,7 @@ class Day05 : ASolution
     }
 
     protected override void ParseInput() {
-        var lines = Input.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None).ToList();
+        var lines = Input.SplitByNewline();
 ;
         List<string> crateLines = new(), commandLines = new();
 
