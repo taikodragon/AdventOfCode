@@ -7,6 +7,12 @@ namespace AdventOfCode.Solutions
 {
     class IntCoord : IComparable<IntCoord>, IEquatable<IntCoord>
     {
+        public static readonly IntCoord Up = new (0, -1),
+            Down = new (0, 1),
+            Left = new (-1, 0),
+            Right = new (1, 0);
+
+
         public IntCoord(int x, int y) {
             X = x; Y = y;
         }
@@ -51,6 +57,8 @@ namespace AdventOfCode.Solutions
             return lhs?.X != rhs?.X || lhs?.Y != rhs?.Y;
         }
 
+        public static implicit operator (int x, int y)(IntCoord pt) => (pt.X, pt.Y);
+        public static implicit operator IntCoord((int x, int y) pt) => new(pt.x, pt.y);
         public static IntCoord operator-(IntCoord me) {
             if( me == null ) throw new ArgumentNullException(nameof(me));
             return new IntCoord(-me.X, -me.Y);
