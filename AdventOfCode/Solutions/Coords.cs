@@ -92,5 +92,9 @@ namespace AdventOfCode.Solutions
             if( lhs == null ) throw new ArgumentNullException(nameof(lhs));
             return new IntCoord(lhs.X * rhs, lhs.Y * rhs);
         }
+
+        public double Dist(IntCoord other) {
+            return Math.Sqrt(Math.Pow(X - other.X, 2) + Math.Pow(Y - other.Y, 2));
+        }
     }
 }

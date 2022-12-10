@@ -72,14 +72,15 @@ class Day09 : ASolution
                     if (Math.Sqrt(Math.Pow(head.X - tail.X, 2) + Math.Pow(head.Y - tail.Y, 2)) > 1.5) {
                         var xDelta = head.X - tail.X;
                         if (xDelta > 0) tail += IntCoord.Right;
-                        else if( xDelta < 0) tail += IntCoord.Left;
+                        else if (xDelta < 0) tail += IntCoord.Left;
                         var yDelta = head.Y - tail.Y;
                         if (yDelta > 0) tail += IntCoord.Down;
                         else if (yDelta < 0) tail += IntCoord.Up;
 
                         rope[i] = tail;
-                        if( i == 9 ) visited.Add(tail);
+                        if (i == 9) visited.Add(tail);
                     }
+                    else break;
                     //PrintState2(rope);
                 }
                 //Debug.WriteLine("===");
