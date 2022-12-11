@@ -97,6 +97,24 @@ namespace AdventOfCode.Solutions
 
         public static double FindLCM(double a, double b) => a * b / FindGCD(a, b);
 
+        private static bool ValuesAlign(Dictionary<long,long> dict) {
+            var vals = dict.Values;
+            long first = vals.First();
+            return vals.Skip(1).All(x => x == first);
+        }
+        public static long FindLCM(IEnumerable<long> numbers) {
+            Dictionary<long, long> multiples = new();
+            foreach(long num in numbers) {
+                multiples[num] = num;
+            }
+
+            while(!ValuesAlign(multiples)) {
+                var pair = multiples.OrderBy(kv => kv.Value).First();
+                multiples[pair.Key] = pair.Value + pair.Key;
+            }
+            return multiples.First().Value;
+        }
+
         public static void Repeat(this Action action, int count)
         {
             for(int i = 0; i < count; i++) action();
