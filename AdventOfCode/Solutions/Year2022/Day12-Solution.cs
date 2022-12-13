@@ -2,6 +2,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -29,7 +30,6 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
 
     int iters = 0;
     PriorityQueue<Pathway, Pathway> queue;
-    Dictionary<IntCoord, int> gridRep = new(5000);
 
     protected override void ParseInput() {
         grid = Input.SplitByNewline();
@@ -167,52 +167,77 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
         return CoordHeight(grid, other) - 1 <= CoordHeight(grid, self);
     }
     protected override object SolvePartOneRaw() {
-        PriorityQueue<Pathway,int> paths = new();
-
-        {
-            var initialPath = new Pathway(grid, gridRep, new(), start, start);
-            paths.Enqueue(initialPath, initialPath.Cost);
+        var finals = FindPath(start);
+        var finalPath = finals.OrderBy(r => r.Cost).FirstOrDefault();
+        if (finalPath is not null) {
+            Print(finalPath, false, string.Empty);
+            return finalPath.Cost;
         }
+        return null;
 
+    }
+    protected override object SolvePartTwoRaw() {
+        HashSet<IntCoord> starts = pointToRegion[start].area;
         List<Pathway> finals = new();
-        int endHeight = CoordHeight(grid, end);
-        while(paths.Count > 0) {
-            var currentPath = paths.Dequeue();
-            WriteLine($"Finding paths for {currentPath.Head} / {currentPath.Target} @ {currentPath.Height + 1}");
-            var results = FindPathWay(currentPath, pointToRegion[currentPath.Target]);
-            WriteLine($"FindPathWay complete with {results.Count} results.");
-            foreach(var result in results ) {
-                if( result.Head == end ) {
-                    finals.Add(result);
-                    continue;
-                }
-                paths.Enqueue(result, result.Cost);
-
-                WriteLine($"Got result reaching {result.Target}, costing {result.Cost}");
-            }
-            WriteLine($"Current State: finals: {finals.Count} pending: {paths.Count}");
-            //Thread.Sleep(3_000);
+        foreach(var startPt in starts) {
+            var thisFinals = FindPath(startPt);
+            finals.AddRange(thisFinals);
         }
-        
-        WriteLine($"Complete in {iters} iterations with {finals.Count}");
 
         var finalPath = finals.OrderBy(r => r.Cost).FirstOrDefault();
-        if( finalPath is not null ) {
+        if (finalPath is not null) {
             Print(finalPath, false, string.Empty);
             return finalPath.Cost;
         }
         return null;
     }
-    protected override object SolvePartTwoRaw() {
-        return null;
+
+    List<Pathway> FindPath(IntCoord start) {
+        List<Pathway> finals = new();
+        Dictionary<IntCoord, Pathway> cheapestTo = new();
+        queue.Clear();
+        EnqueuePathway(new(grid, new(), start, end));
+        while (queue.Count > 0) {
+            iters++;
+            Pathway current = DequeuePathway();
+            if (current.Complete) {
+                finals.Add(current);
+                //WriteLine($"Complete Path! === !!! ==={Environment.NewLine}\tHead: {current.Head} \tTarget: {current.Target} \tCost: {current.Cost} -- Exits: {targets.Count} \tComplete Paths: {completes.Count} \tQueue Count: {queue.Count} \tIter: {iters} \tGrid Rep: {gridRep.Count} Min: {gridRepMin}");
+                //Print(current, false, "");
+                continue;
+            }
+            //Print(current, false, $"Complete Paths: {finals.Count} \tQueue Count: {queue.Count} \tIter: {iters}");
+
+
+            foreach (var delta in dirs) {
+                var coord = current.Head + delta;
+                // check for within bounds
+                var coordRegion = pointToRegion.GetValueOrDefault(coord);
+                if (coord == current.Target || coordRegion is not null) {
+                    var cachedPath = cheapestTo.GetValueOrDefault(coord);
+                    if (cachedPath == null) {
+                        var alt = current.Fork();
+                        if (alt.TryVisit(coord)) {
+                            cheapestTo[coord] = alt;
+                            EnqueuePathway(alt);
+                        }
+                    }
+                    else if (current.Cost + 1 < cachedPath.Cost) { // replace
+                        cheapestTo[coord] = current;
+                    }
+                    // else this was a worse path
+                }
+            }
+
+            //Thread.Sleep(100);
+        }
+
+        return finals;
     }
 
     void Print(Pathway path, bool withOrdering, string stats) {
         List<StringBuilder> printGrid = new(grid.Select(l => new StringBuilder(l)));
         char at = 'A';
-        foreach(var (coord, rep) in gridRep) {
-            if( rep >= RepFloor) printGrid[coord.Y][coord.X] = '#';
-        }
 
         foreach (var coord in path.Path) {
             if( withOrdering ) {
@@ -220,11 +245,7 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
                 at++;
                 if (at == ('Z' + 1)) at = 'A';
             } else {
-                if( gridRep.GetValueOrDefault(coord) >= RepFloor ) {
-                    printGrid[coord.Y][coord.X] = '+';
-                } else {
-                    printGrid[coord.Y][coord.X] = (char)(printGrid[coord.Y][coord.X] + ('A' - 'a'));
-                }
+                printGrid[coord.Y][coord.X] = (char)(printGrid[coord.Y][coord.X] + ('A' - 'a'));
             }
         }
         printGrid[path.Target.Y][path.Target.X] = '$';
@@ -241,81 +262,15 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
         return comp;
     }
 
-
-    List<Pathway> FindPathWay(Pathway entry, Region within) {
-        WriteLine("=== Region Search ===");
-        WriteLine($"Starting from {entry.Target} rooted at {entry.Head} with region {regions.IndexOf(within)}");
-
-        HashSet<IntCoord> targets;
-        if (within.exitUp.Count > 0) targets = within.exitUp;
-        else targets = within.exitDown;
-
-
-        List<Pathway> completes = new();
-        // queue up targets
-        foreach (var targ in targets) {
-            Pathway path = entry.Fork();
-            if (path.Height == EndHeight)
-                path.Target = end;
-            else
-                path.Target = targ;
-
-            // Prepare state
-            Dictionary<IntCoord, Pathway> cheapestTo = new();
-            queue.Clear();
-            gridRep.Clear();
-            EnqueuePathway(path);
-            int gridRepMin = 0;
-            while(queue.Count > 0) {
-                iters++;
-                Pathway current = DequeuePathway();
-                if (current.Complete) {
-                    completes.Add(current);
-                    //WriteLine($"Complete Path! === !!! ==={Environment.NewLine}\tHead: {current.Head} \tTarget: {current.Target} \tCost: {current.Cost} -- Exits: {targets.Count} \tComplete Paths: {completes.Count} \tQueue Count: {queue.Count} \tIter: {iters} \tGrid Rep: {gridRep.Count} Min: {gridRepMin}");
-                    //Print(current, false, "");
-                    continue;
-                }
-                //Print(current, false, $"Exits: {targets.Count} \tComplete Paths: {completes.Count} \tQueue Count: {queue.Count} \tIter: {iters} \tGrid Rep: {gridRep.Count} Min: {gridRepMin}");
-
-                // we visited this square, avoid over visitation by increasing the reputation
-                //gridRep[current.Head] = gridRep.GetValueOrDefault(current.Head) + 1;
-                //if (gridRep[current.Head] > gridRepMin) gridRepMin = gridRep[current.Head];
-
-                foreach (var delta in dirs) {
-                    var coord = current.Head + delta;
-                    // check for within bounds
-                    if (coord == current.Target || within.area.Contains(coord)) {
-                        var cachedPath = cheapestTo.GetValueOrDefault(coord);
-                        if( cachedPath == null) {
-                            var alt = current.Fork();
-                            if (alt.TryVisit(coord)) {
-                                cheapestTo[coord] = alt;
-                                EnqueuePathway(alt);
-                            }
-                        }
-                        else if(current.Cost + 1 < cachedPath.Cost) { // replace
-                            cheapestTo[coord] = current;
-                        }
-                        // else this was a worse path
-                    }
-                }
-            }
-        }
-
-        return completes;
-    }
-
-    internal class Pathway
+    internal class Pathway 
     {
         readonly List<string> grid;
-        readonly Dictionary<IntCoord, int> gridRep;
         readonly HashSet<IntCoord> visited;
         List<IntCoord> path = new();
         IntCoord head;
 
-        public Pathway(List<string> grid, Dictionary<IntCoord, int> gridRep, HashSet<IntCoord> visited, IntCoord head, IntCoord target) {
+        public Pathway(List<string> grid, HashSet<IntCoord> visited, IntCoord head, IntCoord target) {
             this.grid = grid ?? throw new ArgumentNullException(nameof(grid));
-            this.gridRep = gridRep ?? throw new ArgumentNullException(nameof(gridRep));
             this.visited = visited ?? throw new ArgumentNullException(nameof(visited));
 
             this.head = head;
@@ -330,7 +285,6 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
         public int Cost => path.Count - 1;
         public int Distance => Utilities.ManhattanDistance(head, Target);
         public bool Complete => head == Target;
-        public int Reputation => gridRep.GetValueOrDefault(Head);
         public int Height => grid[head.Y][head.X] - 'a';
 
         public bool TryVisit(IntCoord coord) {
@@ -346,7 +300,7 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
         }
 
         public Pathway Fork() {
-            return new Pathway(grid, gridRep, new(visited), head, Target) {
+            return new Pathway(grid, new(visited), head, Target) {
                 path = new(path)
             };
         }
