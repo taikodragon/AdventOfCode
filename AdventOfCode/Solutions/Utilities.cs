@@ -226,7 +226,6 @@ namespace AdventOfCode.Solutions
             return newValue;
         }
 
-
     }
     public enum CompassDirection
     {
@@ -239,4 +238,7 @@ namespace AdventOfCode.Solutions
         W,
         NW
     }
+
+
 }
+

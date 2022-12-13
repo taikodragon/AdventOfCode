@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -26,6 +27,7 @@ namespace AdventOfCode.Solutions
         public long ContructionTime { get; set; }
         public long ParseTime { get; set; }
         protected bool UseDebugInput { get; set; }
+        protected bool OutputAlways { get; set; } = false;
 
         private protected ASolution(bool useDebugInput) {
             var dayInfo = GetType().GetCustomAttribute<DayInfoAttribute>();
@@ -38,6 +40,23 @@ namespace AdventOfCode.Solutions
             _part1 = new Lazy<string>(() => SafelySolve(SolvePartOne, out _part1Time));
             _part2 = new Lazy<string>(() => SafelySolve(SolvePartTwo, out _part2Time));
             UseDebugInput = useDebugInput;
+        }
+
+        protected void WriteLine(string debugOutput) {
+            if (UseDebugInput || OutputAlways) {
+                Console.WriteLine(debugOutput);
+                Debug.WriteLine(debugOutput);
+            }
+        }
+        protected void WriteLine(object thing) {
+            WriteLine(thing?.ToString() ?? "<-null->");
+        }
+        protected void WriteLine(IEnumerable collection) {
+            StringBuilder sb = new();
+            foreach(var item in collection) {
+                sb.AppendLine(item?.ToString() ?? "<-null->");
+            }
+            WriteLine(sb);
         }
 
         public void Solve(int part = 0) {
@@ -119,8 +138,19 @@ namespace AdventOfCode.Solutions
             return input;
         }
 
-        protected abstract string SolvePartOne();
-        protected abstract string SolvePartTwo();
+        protected virtual object SolvePartOneRaw() {
+            return null;
+        }
+        protected virtual string SolvePartOne() {
+            return SolvePartOneRaw()?.ToString();
+        }
+
+        protected virtual object SolvePartTwoRaw() {
+            return null;
+        }
+        protected virtual string SolvePartTwo() {
+            return SolvePartTwoRaw()?.ToString();
+        }
 
         protected virtual void ParseInput() { }
 
