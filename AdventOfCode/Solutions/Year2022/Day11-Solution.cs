@@ -117,8 +117,10 @@ class Day11 : ASolution
             if (round % 100 == 0) Console.WriteLine($"Completed round {round}");
         }
 
-        foreach(var pair in sim.Select(kv => (kv.Key, kv.Value.Inspections)).OrderBy(kv => kv.Key)) {
-            Debug.WriteLine(pair);
+        if( UseDebugInput || OutputAlways ) {
+            foreach(var pair in sim.Select(kv => (kv.Key, kv.Value.Inspections)).OrderBy(kv => kv.Key)) {
+                WriteLine(pair);
+            }
         }
 
         var topTwo = sim

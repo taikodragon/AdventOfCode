@@ -1,35 +1,25 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using Windows.ApplicationModel.ExtendedExecution.Foreground;
-using Windows.ApplicationModel.Payments;
-using Windows.UI.Composition;
 namespace AdventOfCode.Solutions.Year2022;
 [DayInfo(2022, 12, "")]
 class Day12 : ASolution, IComparer<Day12.Pathway>
 {
 
     public Day12() : base(false) {
-        OutputAlways = true;
         queue = new(5000, this);
     }
 
-    const int RepFloor = 75, EndHeight = 'z' - 'a';
     readonly IntCoord[] dirs = new IntCoord[] { IntCoord.Right, IntCoord.Up, IntCoord.Down, IntCoord.Left };
 
     List<string> grid;
     IntCoord start, end, max;
-    List<Region> regions = new();
-    Dictionary<IntCoord, Region> pointToRegion = new();
+    readonly List<Region> regions = new();
+    readonly Dictionary<IntCoord, Region> pointToRegion = new();
 
-    int iters = 0;
-    PriorityQueue<Pathway, Pathway> queue;
+    readonly PriorityQueue<Pathway, Pathway> queue;
 
     protected override void ParseInput() {
         grid = Input.SplitByNewline();
@@ -198,7 +188,6 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
         queue.Clear();
         EnqueuePathway(new(grid, new(), start, end));
         while (queue.Count > 0) {
-            iters++;
             Pathway current = DequeuePathway();
             if (current.Complete) {
                 finals.Add(current);
