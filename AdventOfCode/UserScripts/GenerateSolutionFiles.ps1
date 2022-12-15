@@ -6,34 +6,36 @@ $template = @"
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace AdventOfCode.Solutions.Year<YEAR>
+namespace AdventOfCode.Solutions.Year<YEAR>;
+
+[DayInfo(<YEAR>, <DAY>, `"`")]
+class Day<DAY> : ASolution
 {
 
-    class Day<DAY> : ASolution
+    public Day<DAY>() : base(false)
+    {
+            
+    }
+
+    protected override void ParseInput()
     {
 
-        public Day<DAY>() : base(<DAY>, <YEAR>, `"`", false)
-        {
-            
-        }
+    }
 
-        protected override string SolvePartOne()
-        {
-            return null;
-        }
+    protected override object SolvePartOneRaw()
+    {
+        return null;
+    }
 
-        protected override string SolvePartTwo()
-        {
-            return null;
-        }
+    protected override object SolvePartTwoRaw()
+    {
+        return null;
     }
 }
-
 "@
 
 $newDirectory = Join-Path $PSScriptRoot "../Solutions/Year$Year"

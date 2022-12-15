@@ -72,9 +72,6 @@ namespace AdventOfCode.Solutions.Year2015
             int i;
             int[] scores = new int[4];
 
-            void AssertFilled() {
-                if( Sum(amounts) != recpMax ) throw new Exception($"amounts did not sum to {recpMax}");
-            }
             List<int[]> incColumns = new List<int[]>();
 
 
@@ -147,9 +144,6 @@ namespace AdventOfCode.Solutions.Year2015
             int i;
             int[] scores = new int[5];
 
-            void AssertFilled() {
-                if( Sum(amounts) != recpMax ) throw new Exception($"amounts did not sum to {recpMax}");
-            }
             List<int[]> incColumns = new List<int[]>();
 
 

@@ -121,7 +121,7 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
             }
         }
 
-        if ( false ) {
+        if ( OutputAlways ) {
             StringBuilder sb = new(pointToRegion.Count + (2 * grid.Count));
             for (y = 0; y < max.Y; y++) {
                 for (x = 0; x < max.X; x++) {

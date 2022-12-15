@@ -1,11 +1,7 @@
 using System;
-using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using Windows.Gaming.Input.ForceFeedback;
 
 namespace AdventOfCode.Solutions.Year2022;
 
@@ -15,7 +11,6 @@ class Day14 : ASolution
     const char Rock = '#', Sand = 'o';
     public Day14() : base(false)
     {
-        
     }
 
     IntCoord min, max, spawn = (500,0);

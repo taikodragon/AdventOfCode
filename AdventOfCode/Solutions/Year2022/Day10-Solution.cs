@@ -23,6 +23,7 @@ class Day10 : ASolution
             CycleTime = Code switch {
                 Noop => 1,
                 Addx => 2,
+                _ => throw new Exception("Unknown code type")
             };
         }
         public string Code { get; }

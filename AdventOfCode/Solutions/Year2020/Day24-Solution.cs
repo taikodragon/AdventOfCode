@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
+#pragma warning disable CS0162 // Unreachable code detected
 namespace AdventOfCode.Solutions.Year2020
 {
 
@@ -44,7 +45,7 @@ namespace AdventOfCode.Solutions.Year2020
                             break;
                     }
                     var nextNode = atNode.GetNodeInDirection(nextDirection);
-                    if( isTracing ) Trace.WriteLine(string.Concat(atNode, " --", nextDirection.ToString().PadLeft(2), "-> ", nextNode));
+                    if ( isTracing ) Trace.WriteLine(string.Concat(atNode, " --", nextDirection.ToString().PadLeft(2), "-> ", nextNode));
                     atNode = nextNode;
                 }
                 if( isTracing ) Trace.WriteLine($"=== Flipping {atNode} ===");
@@ -283,3 +284,4 @@ namespace AdventOfCode.Solutions.Year2020
         }
     }
 }
+#pragma warning restore CS0162 // Unreachable code detected

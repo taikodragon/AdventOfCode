@@ -53,7 +53,7 @@ class Day09 : ASolution
         IntCoord[] rope = new IntCoord[10];
         for (int i = 0; i < 10; i++) { rope[i] = new(0, 0); }
 
-        //PrintState2(rope);
+        PrintState2(rope);
         foreach (var move in moves) {
             var delta = move.dir switch {
                 "U" => IntCoord.Up,
@@ -62,7 +62,6 @@ class Day09 : ASolution
                 "R" => IntCoord.Right,
                 _ => throw new Exception("unknown dir")
             };
-            //Debug.WriteLine($"Direction: {move.dir} Count: {move.count}");
 
             for (int counter = move.count; counter > 0; counter--) {
                 rope[0] += delta;
@@ -81,16 +80,15 @@ class Day09 : ASolution
                         if (i == 9) visited.Add(tail);
                     }
                     else break;
-                    //PrintState2(rope);
+                    PrintState2(rope);
                 }
-                //Debug.WriteLine("===");
             }
         }
         return visited.Count.ToString();
     }
 
     void PrintState(IntCoord head, IntCoord tail) {
-        return;
+        if( !(UseDebugInput || OutputAlways) ) return;
         const int rad = 5;
         IntCoord min = (-rad, -rad), max = (rad, rad), zero = (0,0);
         StringBuilder sb = new();
@@ -104,10 +102,11 @@ class Day09 : ASolution
             }
             sb.AppendLine();
         }
-        Debug.WriteLine(sb.ToString());
+        WriteLine(sb);
     }
 
     void PrintState2(IntCoord[] rope) {
+        if (!(UseDebugInput || OutputAlways)) return;
         const int rad = 5;
         IntCoord min = (-rad, -rad), max = (rad, rad), zero = (0, 0);
         StringBuilder sb = new();
@@ -129,6 +128,6 @@ class Day09 : ASolution
             }
             sb.AppendLine();
         }
-        Debug.WriteLine(sb.ToString());
+        WriteLine(sb);
     }
 }
