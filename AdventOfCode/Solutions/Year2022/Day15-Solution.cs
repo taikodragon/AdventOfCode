@@ -33,7 +33,11 @@ class Day15 : ASolution
     protected override object SolvePartOneRaw() {
         int yRef = UseDebugInput ? 10 : 2000000;
         int xMin = int.MaxValue, xMax = int.MinValue;
-        foreach(var sensor in sensors) {
+
+        var sensorsInRange = sensors
+            .Where(s => s.Position.Y + s.Radius >= yRef && yRef >= s.Position.Y - s.Radius)
+            .ToList();
+        foreach(var sensor in sensorsInRange) {
             int sensorMin = sensor.Position.X - sensor.Radius;
             if(sensorMin < xMin) {
                 xMin = sensorMin;
@@ -44,18 +48,17 @@ class Day15 : ASolution
             }
         }
 
-        HashSet<IntCoord> foundBeacons = new(xMax - xMin);
         HashSet<IntCoord> withinRadius = new(xMax - xMin);
-        for(int i = xMin; i < xMax; i++) {
-            IntCoord pt = (i, yRef);
-            foreach(var s in sensors) {
-                if (s.NearestBeacon == pt) {
-                    foundBeacons.Add(pt);
-                    break;
-                }
-                if (Utilities.ManhattanDistance(s.Position, pt) <= s.Radius) {
-                    withinRadius.Add(pt);
-                }
+        HashSet<IntCoord> foundBeacons = new(sensorsInRange.Count);
+
+        foreach(var sensor in sensorsInRange) {
+            if (sensor.NearestBeacon.Y == yRef) foundBeacons.Add(sensor.NearestBeacon);
+
+            int yDelta = Math.Abs(sensor.Position.Y - yRef);
+            int rxMin = sensor.Position.X - (sensor.Radius - yDelta);
+            int rxMax = sensor.Position.X + (sensor.Radius - yDelta);
+            for (int i = rxMin; i <= rxMax; i++) {
+                withinRadius.Add((i,yRef));
             }
         }
 
@@ -73,17 +76,24 @@ class Day15 : ASolution
             nw = IntCoord.Up + IntCoord.Left,
             ne = IntCoord.Up + IntCoord.Right;
 
-        var result = Parallel.ForEach(sensors, (sensor) => {
+        var result = Parallel.ForEach(sensors, (sensor, state) => {
             IntCoord pos = sensor.Position;
             IntCoord delta = se;
             IntCoord pt = sensor.Position + (0, -(sensor.Radius + 1));
             IntCoord start = pt;
+            Sensor[] nearby = sensors
+                .Where(s => Utilities.ManhattanDistance(s.Position, sensor.Position) < (sensor.Radius + s.Radius + 2))
+                .ToArray();
 
             do {
                 // Only add points in bounds
                 if( pt.X >= 0 && pt.X <= max && pt.Y >= 0 && pt.Y <= max) {
-                    if (sensors.Any(s => Utilities.ManhattanDistance(s.Position, pt) <= s.Radius)) { }
-                    else { maybeBeacon.Add(pt); }
+                    if (nearby.Any(s => Utilities.ManhattanDistance(s.Position, pt) <= s.Radius)) { }
+                    else {
+                        maybeBeacon.Add(pt);
+                        state.Break();
+                        return;
+                    }
                 }
 
                 if (delta == se && pt.Y == pos.Y) delta = sw;
@@ -91,9 +101,8 @@ class Day15 : ASolution
                 else if (delta == nw && pt.Y == pos.Y) delta = ne;
 
                 pt += delta;
-            } while (pt != start);
+            } while (pt != start && !state.ShouldExitCurrentIteration);
         });
-        if (!result.IsCompleted) throw new Exception("loop broke");
 
         var beacon = maybeBeacon.First();
         return beacon.X * 4_000_000L + beacon.Y;

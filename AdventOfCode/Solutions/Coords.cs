@@ -47,7 +47,7 @@ namespace AdventOfCode.Solutions
             return obj is IntCoord coord ? Equals(coord) : base.Equals(obj);
         }
         public override int GetHashCode() {
-            return (X, Y).GetHashCode();
+            return HashCode.Combine(X, Y);
         }
 
         public static bool operator==(IntCoord lhs, IntCoord rhs) {
