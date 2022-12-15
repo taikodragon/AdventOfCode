@@ -31,7 +31,6 @@ class Day15 : ASolution
         }
     }
     protected override object SolvePartOneRaw() {
-        return null;
         int yRef = UseDebugInput ? 10 : 2000000;
         int xMin = int.MaxValue, xMax = int.MinValue;
         foreach(var sensor in sensors) {
@@ -64,104 +63,40 @@ class Day15 : ASolution
     }
 
     HashSet<IntCoord> maybeBeacon = new();
-
-    class Iter {
-        public int y, xMin, xMax;
-        public (int x, int rad, int yDist)[] sensors;
-        public HashSet<IntCoord> maybeBeacon;
-    }
-    bool stop = false;
-    ConcurrentQueue<Iter> yLines = new();
     protected override object SolvePartTwoRaw() {
         OutputAlways = true;
+
         int max = UseDebugInput ? 20 : 4_000_000;
-        int yMax = max;
-        int xMin = int.MaxValue, xMax = int.MinValue;
-        foreach (var sensor in sensors) {
-            int sensorMin = sensor.Position.X - sensor.Radius;
-            if (sensorMin < xMin) {
-                xMin = sensorMin;
-            }
-            int sensorMax = sensor.Position.X + sensor.Radius;
-            if (sensorMax > xMax) {
-                xMax = sensorMax;
-            }
-        }
-        xMin = Math.Max(0, xMin);
-        xMax = Math.Min(max, xMax);
 
-        List<Task> threads = new();
-        for (int i = 0; i < 6; i++) {
-            threads.Add(new Task(P2_Thread, TaskCreationOptions.LongRunning));
-            threads[^1].Start();
-        }
+        IntCoord se = IntCoord.Down + IntCoord.Right,
+            sw = IntCoord.Down + IntCoord.Left,
+            nw = IntCoord.Up + IntCoord.Left,
+            ne = IntCoord.Up + IntCoord.Right;
 
-        Stopwatch sw = new();
-        for (int y = 0; y < yMax; y++) {
-            if (y % 10 == 0) {
-                sw.Stop();
-                WriteLine($"{y} -- {sw.ElapsedMilliseconds / 10.0}");
-            }
-            sw.Restart();
-            (int x, int rad, int yDist)[] filtered = sensors
-                .Where(s => s.Position.Y + s.Radius >= y && y >= s.Position.Y - s.Radius)
-                .Select(s => (s.Position.X, s.Radius, Math.Abs(s.Position.Y - y)))
-                .ToArray();
+        var result = Parallel.ForEach(sensors, (sensor) => {
+            IntCoord pos = sensor.Position;
+            IntCoord delta = se;
+            IntCoord pt = sensor.Position + (0, -(sensor.Radius + 1));
+            IntCoord start = pt;
 
-            IntCoord pt = (0, y);
+            do {
+                // Only add points in bounds
+                if( pt.X >= 0 && pt.X <= max && pt.Y >= 0 && pt.Y <= max) {
+                    if (sensors.Any(s => Utilities.ManhattanDistance(s.Position, pt) <= s.Radius)) { }
+                    else { maybeBeacon.Add(pt); }
+                }
 
-            while (yLines.Count >= 20_000)
-                Thread.Sleep(1);
+                if (delta == se && pt.Y == pos.Y) delta = sw;
+                else if (delta == sw && pt.X == pos.X) delta = nw;
+                else if (delta == nw && pt.Y == pos.Y) delta = ne;
 
-            yLines.Enqueue(new Iter {
-                y = y,
-                xMin = xMin,
-                xMax = xMax,
-                sensors = filtered
-            });
-        }
-
-        stop = true;
-        Task.WaitAll(threads.ToArray());
+                pt += delta;
+            } while (pt != start);
+        });
+        if (!result.IsCompleted) throw new Exception("loop broke");
 
         var beacon = maybeBeacon.First();
         return beacon.X * 4_000_000L + beacon.Y;
-    }
-
-    void P2_Thread() {
-        while(!stop || yLines.Count > 0) {
-
-            if (!yLines.TryDequeue(out var line)) {
-                Thread.Sleep(1);
-                continue;
-            }
-            IntCoord pt = (0, line.y);
-            for (int xBase = line.xMin, xStride = 1000; (xBase) < line.xMax; xBase += xStride) {
-                int xChunkMax = xBase + xStride;
-                (int x, int rad, int yDist)[] moreFiltered = line.sensors
-                    .Where(s => {
-                        int sMax = s.x + s.rad, sMin = s.x - s.rad;
-                        return (sMax <= xChunkMax && sMin >= xBase) ||
-                            (sMax >= xBase && xBase >= sMin) ||
-                            (sMax >= xChunkMax && xChunkMax >= sMin);
-                    })
-                    .ToArray();
-                int filteredCount = moreFiltered.Length - 1;
-                for (int x = xBase; x < xChunkMax; x++) {
-                    pt.X = x;
-                    bool withinReach = false;
-                    for (int i = filteredCount; i >= 0; i--) {
-                        var s = moreFiltered[i];
-                        withinReach = (Math.Abs(s.x - x) + s.yDist) <= s.rad;
-                        if (withinReach) break;
-
-                    }
-                    if (!withinReach)
-                        maybeBeacon.Add(pt);
-                }
-
-            }
-        }
     }
 
     class Sensor {
