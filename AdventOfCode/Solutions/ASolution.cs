@@ -40,10 +40,11 @@ namespace AdventOfCode.Solutions
             _part1 = new Lazy<string>(() => SafelySolve(SolvePartOne, out _part1Time));
             _part2 = new Lazy<string>(() => SafelySolve(SolvePartTwo, out _part2Time));
             UseDebugInput = useDebugInput;
+            OutputAlways = useDebugInput;
         }
 
         protected void WriteLine(string debugOutput) {
-            if (UseDebugInput || OutputAlways) {
+            if (OutputAlways) {
                 Console.WriteLine(debugOutput);
                 Debug.WriteLine(debugOutput);
             }

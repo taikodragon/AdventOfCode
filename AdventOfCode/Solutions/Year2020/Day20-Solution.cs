@@ -34,7 +34,7 @@ namespace AdventOfCode.Solutions.Year2020
             }
             public long TileId { get; set; }
             public bool[,] ImageData { get; set; }
-            public IntCoord Origin { get; set; }
+            public IntCoord? Origin { get; set; }
             public Dictionary<Side, string> Sides { get; set; } = new Dictionary<Side, string>();
 
             public void FlipVert() {
@@ -183,32 +183,32 @@ namespace AdventOfCode.Solutions.Year2020
                 locked.Add(tileId);
 
                 CopyTo(tile,
-                    tile.Origin.X, tile.Origin.X + tileDataDim, 1,
-                    tile.Origin.Y, tile.Origin.Y + tileDataDim, 1,
+                    tile.Origin.Value.X, tile.Origin.Value.X + tileDataDim, 1,
+                    tile.Origin.Value.Y, tile.Origin.Value.Y + tileDataDim, 1,
                     builtImage);
 
                 Tile top = OtherSide(tile, Side.Top);
                 if( top != null && !locked.Contains(top.TileId)) {
                     if( top.Origin == null )
-                        top.Origin = new IntCoord(tile.Origin.X - tileDataDim, tile.Origin.Y);
+                        top.Origin = new IntCoord(tile.Origin.Value.X - tileDataDim, tile.Origin.Value.Y);
                     toBePlacedNext.Enqueue(top.TileId);
                 }
                 Tile bottom = OtherSide(tile, Side.Bottom);
                 if( bottom != null && !locked.Contains(bottom.TileId) ) {
                     if( bottom.Origin == null )
-                        bottom.Origin = new IntCoord(tile.Origin.X + tileDataDim, tile.Origin.Y);
+                        bottom.Origin = new IntCoord(tile.Origin.Value.X + tileDataDim, tile.Origin.Value.Y);
                     toBePlacedNext.Enqueue(bottom.TileId);
                 }
                 Tile left = OtherSide(tile, Side.Left);
                 if( left != null && !locked.Contains(left.TileId) ) {
                     if( left.Origin == null )
-                        left.Origin = new IntCoord(tile.Origin.X, tile.Origin.Y - tileDataDim);
+                        left.Origin = new IntCoord(tile.Origin.Value.X, tile.Origin.Value.Y - tileDataDim);
                     toBePlacedNext.Enqueue(left.TileId);
                 }
                 Tile right = OtherSide(tile, Side.Right);
                 if( right != null && !locked.Contains(right.TileId) ) {
                     if( right.Origin == null )
-                        right.Origin = new IntCoord(tile.Origin.X, tile.Origin.Y + tileDataDim);
+                        right.Origin = new IntCoord(tile.Origin.Value.X, tile.Origin.Value.Y + tileDataDim);
                     toBePlacedNext.Enqueue(right.TileId);
                 }
             }
