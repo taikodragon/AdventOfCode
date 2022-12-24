@@ -18,18 +18,18 @@ namespace AdventOfCode.Solutions.Year2015
 
         protected override string SolvePartOne()
         {
-            Dictionary<IntCoord, int> deliveries = new Dictionary<IntCoord, int>() {
-                { new IntCoord(0, 0), 1 }
+            Dictionary<Int2, int> deliveries = new Dictionary<Int2, int>() {
+                { new Int2(0, 0), 1 }
             };
-            IntCoord at = new IntCoord(0, 0);
+            Int2 at = new Int2(0, 0);
             foreach(char c in Input) {
                 switch(c) {
-                    case '^': at.North++; break;
-                    case 'v': at.North--; break;
-                    case '>': at.East++; break;
-                    case '<': at.East--; break;
+                    case '^': at.Y++; break;
+                    case 'v': at.Y--; break;
+                    case '>': at.X++; break;
+                    case '<': at.X--; break;
                 }
-                var atClone = new IntCoord(at.X, at.Y);
+                var atClone = new Int2(at.X, at.Y);
                 if( deliveries.TryGetValue(at, out int deliveryCount) ) {
                     deliveries[atClone] = deliveryCount + 1;
                 } else {
@@ -41,21 +41,21 @@ namespace AdventOfCode.Solutions.Year2015
 
         protected override string SolvePartTwo()
         {
-            Dictionary<IntCoord, int> deliveries = new Dictionary<IntCoord, int>() {
-                { new IntCoord(0, 0), 2 }
+            Dictionary<Int2, int> deliveries = new Dictionary<Int2, int>() {
+                { new Int2(0, 0), 2 }
             };
             int idx = 0;
-            IntCoord santa = new IntCoord(0, 0), robosanta = new IntCoord(0, 0);
+            Int2 santa = new Int2(0, 0), robosanta = new Int2(0, 0);
             foreach( char c in Input ) {
-                IntCoord at = (idx % 2) == 0 ? santa : robosanta;
+                Int2 at = (idx % 2) == 0 ? santa : robosanta;
                 idx++;
                 switch( c ) {
-                    case '^': at.North++; break;
-                    case 'v': at.North--; break;
-                    case '>': at.East++; break;
-                    case '<': at.East--; break;
+                    case '^': at.Y++; break;
+                    case 'v': at.Y--; break;
+                    case '>': at.X++; break;
+                    case '<': at.X--; break;
                 }
-                var atClone = new IntCoord(at.X, at.Y);
+                var atClone = new Int2(at.X, at.Y);
                 if( deliveries.TryGetValue(at, out int deliveryCount) ) {
                     deliveries[atClone] = deliveryCount + 1;
                 }

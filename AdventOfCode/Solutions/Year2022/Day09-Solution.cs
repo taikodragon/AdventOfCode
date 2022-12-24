@@ -21,17 +21,17 @@ class Day09 : ASolution
         }
     }
     protected override string SolvePartOne() {
-        HashSet<IntCoord> visited = new() { (0, 0) };
-        IntCoord head = new(0, 0);
-        IntCoord tail = new(0, 0);
+        HashSet<Int2> visited = new() { (0, 0) };
+        Int2 head = new(0, 0);
+        Int2 tail = new(0, 0);
 
         PrintState(head, tail);
         foreach(var move in moves) {
             var delta = move.dir switch {
-                "U" => IntCoord.Up,
-                "D" => IntCoord.Down,
-                "L" => IntCoord.Left,
-                "R" => IntCoord.Right,
+                "U" => Int2.Up,
+                "D" => Int2.Down,
+                "L" => Int2.Left,
+                "R" => Int2.Right,
                 _ => throw new Exception("unknown dir")
             };
             //Debug.WriteLine($"Direction: {move.dir} Count: {move.count}");
@@ -49,17 +49,17 @@ class Day09 : ASolution
         return visited.Count.ToString();
     }
     protected override string SolvePartTwo() {
-        HashSet<IntCoord> visited = new() { (0, 0) };
-        IntCoord[] rope = new IntCoord[10];
+        HashSet<Int2> visited = new() { (0, 0) };
+        Int2[] rope = new Int2[10];
         for (int i = 0; i < 10; i++) { rope[i] = new(0, 0); }
 
         PrintState2(rope);
         foreach (var move in moves) {
             var delta = move.dir switch {
-                "U" => IntCoord.Up,
-                "D" => IntCoord.Down,
-                "L" => IntCoord.Left,
-                "R" => IntCoord.Right,
+                "U" => Int2.Up,
+                "D" => Int2.Down,
+                "L" => Int2.Left,
+                "R" => Int2.Right,
                 _ => throw new Exception("unknown dir")
             };
 
@@ -70,11 +70,11 @@ class Day09 : ASolution
                     var tail = rope[i];
                     if (Math.Sqrt(Math.Pow(head.X - tail.X, 2) + Math.Pow(head.Y - tail.Y, 2)) > 1.5) {
                         var xDelta = head.X - tail.X;
-                        if (xDelta > 0) tail += IntCoord.Right;
-                        else if (xDelta < 0) tail += IntCoord.Left;
+                        if (xDelta > 0) tail += Int2.Right;
+                        else if (xDelta < 0) tail += Int2.Left;
                         var yDelta = head.Y - tail.Y;
-                        if (yDelta > 0) tail += IntCoord.Down;
-                        else if (yDelta < 0) tail += IntCoord.Up;
+                        if (yDelta > 0) tail += Int2.Down;
+                        else if (yDelta < 0) tail += Int2.Up;
 
                         rope[i] = tail;
                         if (i == 9) visited.Add(tail);
@@ -87,14 +87,14 @@ class Day09 : ASolution
         return visited.Count.ToString();
     }
 
-    void PrintState(IntCoord head, IntCoord tail) {
+    void PrintState(Int2 head, Int2 tail) {
         if( !(UseDebugInput || OutputAlways) ) return;
         const int rad = 5;
-        IntCoord min = (-rad, -rad), max = (rad, rad), zero = (0,0);
+        Int2 min = (-rad, -rad), max = (rad, rad), zero = (0,0);
         StringBuilder sb = new();
         for(int y = min.Y; y <= max.Y; y++) {
             for(int x = min.X; x <= max.X; x++) {
-                IntCoord at = (x, y);
+                Int2 at = (x, y);
                 if (at == head) sb.Append('H');
                 else if (at == tail) sb.Append('T');
                 else if (at == zero) sb.Append('s');
@@ -105,14 +105,14 @@ class Day09 : ASolution
         WriteLine(sb);
     }
 
-    void PrintState2(IntCoord[] rope) {
+    void PrintState2(Int2[] rope) {
         if (!(UseDebugInput || OutputAlways)) return;
         const int rad = 5;
-        IntCoord min = (-rad, -rad), max = (rad, rad), zero = (0, 0);
+        Int2 min = (-rad, -rad), max = (rad, rad), zero = (0, 0);
         StringBuilder sb = new();
         for (int y = min.Y; y <= max.Y; y++) {
             for (int x = min.X; x <= max.X; x++) {
-                IntCoord at = (x, y);
+                Int2 at = (x, y);
                 int sbLen = sb.Length;
                 for(int i = 0; i < rope.Length; i++) {
                     if(rope[i] == at) {

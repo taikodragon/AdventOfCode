@@ -117,7 +117,7 @@ namespace AdventOfCode.Solutions
                     DateTime CURRENT_EST = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.Utc).AddHours(-5);
                     if( CURRENT_EST < new DateTime(Year, 12, Day) ) throw new InvalidOperationException();
 
-                    input = Program.Http.GetStringAsync(INPUT_URL).Result.Trim();
+                    input = Program.Http.GetStringAsync(INPUT_URL).Result.Trim('\r', '\n');
                     File.WriteAllText(INPUT_FILEPATH, input);
                 }
                 catch( WebException e ) {

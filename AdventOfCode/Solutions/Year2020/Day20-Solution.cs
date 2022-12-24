@@ -34,7 +34,7 @@ namespace AdventOfCode.Solutions.Year2020
             }
             public long TileId { get; set; }
             public bool[,] ImageData { get; set; }
-            public IntCoord? Origin { get; set; }
+            public Int2? Origin { get; set; }
             public Dictionary<Side, string> Sides { get; set; } = new Dictionary<Side, string>();
 
             public void FlipVert() {
@@ -153,10 +153,10 @@ namespace AdventOfCode.Solutions.Year2020
         }
 
         const int seaMonsterYDim = 19, seaMonsterXDim = 2;
-        List<IntCoord> seaMonster = new List<IntCoord> {
-            new IntCoord(0, 18),
-            new IntCoord(1,  0),new IntCoord(1, 5),new IntCoord(1, 6),new IntCoord(1, 11), new IntCoord(1, 12), new IntCoord(1, 17), new IntCoord(1, 18), new IntCoord(1, 19),
-            new IntCoord(2,  1),new IntCoord(2, 4),new IntCoord(2, 7),new IntCoord(2, 10), new IntCoord(2, 13), new IntCoord(2, 16)
+        List<Int2> seaMonster = new List<Int2> {
+            new Int2(0, 18),
+            new Int2(1,  0),new Int2(1, 5),new Int2(1, 6),new Int2(1, 11), new Int2(1, 12), new Int2(1, 17), new Int2(1, 18), new Int2(1, 19),
+            new Int2(2,  1),new Int2(2, 4),new Int2(2, 7),new Int2(2, 10), new Int2(2, 13), new Int2(2, 16)
         };
 
         protected override string SolvePartTwo()
@@ -179,7 +179,7 @@ namespace AdventOfCode.Solutions.Year2020
                 if( locked.Contains(tileId) ) continue;
 
                 Tile tile = tiles[tileId];
-                if( tile.Origin == null ) tile.Origin = new IntCoord(0, 0);
+                if( tile.Origin == null ) tile.Origin = new Int2(0, 0);
                 locked.Add(tileId);
 
                 CopyTo(tile,
@@ -190,25 +190,25 @@ namespace AdventOfCode.Solutions.Year2020
                 Tile top = OtherSide(tile, Side.Top);
                 if( top != null && !locked.Contains(top.TileId)) {
                     if( top.Origin == null )
-                        top.Origin = new IntCoord(tile.Origin.Value.X - tileDataDim, tile.Origin.Value.Y);
+                        top.Origin = new Int2(tile.Origin.Value.X - tileDataDim, tile.Origin.Value.Y);
                     toBePlacedNext.Enqueue(top.TileId);
                 }
                 Tile bottom = OtherSide(tile, Side.Bottom);
                 if( bottom != null && !locked.Contains(bottom.TileId) ) {
                     if( bottom.Origin == null )
-                        bottom.Origin = new IntCoord(tile.Origin.Value.X + tileDataDim, tile.Origin.Value.Y);
+                        bottom.Origin = new Int2(tile.Origin.Value.X + tileDataDim, tile.Origin.Value.Y);
                     toBePlacedNext.Enqueue(bottom.TileId);
                 }
                 Tile left = OtherSide(tile, Side.Left);
                 if( left != null && !locked.Contains(left.TileId) ) {
                     if( left.Origin == null )
-                        left.Origin = new IntCoord(tile.Origin.Value.X, tile.Origin.Value.Y - tileDataDim);
+                        left.Origin = new Int2(tile.Origin.Value.X, tile.Origin.Value.Y - tileDataDim);
                     toBePlacedNext.Enqueue(left.TileId);
                 }
                 Tile right = OtherSide(tile, Side.Right);
                 if( right != null && !locked.Contains(right.TileId) ) {
                     if( right.Origin == null )
-                        right.Origin = new IntCoord(tile.Origin.Value.X, tile.Origin.Value.Y + tileDataDim);
+                        right.Origin = new Int2(tile.Origin.Value.X, tile.Origin.Value.Y + tileDataDim);
                     toBePlacedNext.Enqueue(right.TileId);
                 }
             }
@@ -260,14 +260,14 @@ namespace AdventOfCode.Solutions.Year2020
 
             int imgStride = dim * (tileDataDim);
             foreach(var rawImg in variants) {
-                List<IntCoord> exempt = new List<IntCoord>();
+                List<Int2> exempt = new List<Int2>();
                 int foundMonsters = 0;
 
                 for(int x = 0; x < imgStride - seaMonsterXDim; x++ ) {
                     for( int y = 0; y < imgStride - seaMonsterYDim; y++ ) {
                         if( seaMonster.TrueForAll(dydx => rawImg[x + dydx.X, y + dydx.Y]) ) {
                             foundMonsters++;
-                            seaMonster.ForEach(dydx => exempt.Add(new IntCoord(x + dydx.X, y + dydx.Y)));
+                            seaMonster.ForEach(dydx => exempt.Add(new Int2(x + dydx.X, y + dydx.Y)));
                         }
                     }
                 }
@@ -276,7 +276,7 @@ namespace AdventOfCode.Solutions.Year2020
                     int roughness = 0;
                     for( int x = 0; x < imgStride; x++ ) {
                         for( int y = 0; y < imgStride; y++ ) {
-                            if( rawImg[x, y] && !exempt.Contains(new IntCoord(x, y)) ) roughness++;
+                            if( rawImg[x, y] && !exempt.Contains(new Int2(x, y)) ) roughness++;
                         }
                     }
                     Trace.WriteLine($"This sea was {roughness} rough!");

@@ -68,7 +68,7 @@ namespace AdventOfCode.Solutions.Year2020
         }
 
 
-        void RotateCoord(IntCoord at, int degrees) {
+        void RotateCoord(Int2 at, int degrees) {
             switch(degrees) {
                 default: break;
                 case -90:
@@ -85,7 +85,7 @@ namespace AdventOfCode.Solutions.Year2020
             }
         }
 
-        void HandleInstructionPart2((Direction dir, int value) instr, IntCoord waypoint, IntCoord shipAt) {
+        void HandleInstructionPart2((Direction dir, int value) instr, Int2 waypoint, Int2 shipAt) {
             switch( instr.dir ) {
                 case Direction.N:
                     waypoint.Y += instr.value;
@@ -114,8 +114,8 @@ namespace AdventOfCode.Solutions.Year2020
 
         protected override string SolvePartTwo()
         {
-            IntCoord waypoint = new IntCoord(10, 1);
-            IntCoord shipAt = new IntCoord(0, 0);
+            Int2 waypoint = new Int2(10, 1);
+            Int2 shipAt = new Int2(0, 0);
 
             foreach(var instr in instructions) {
                 HandleInstructionPart2(instr, waypoint, shipAt);

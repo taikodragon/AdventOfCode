@@ -148,9 +148,6 @@ namespace AdventOfCode.Solutions.Year2022
 
             long delta = (Math.Abs(matchValue - humanSideValueRef1) > Math.Abs(matchValue - humanSideValueRef2)) ? -1 : 1;
 
-            long stride = 1;
-            for (int i = right.ResolvedValue.Value.ToString().Length - 2; i > 0; i--, stride *= 10) ;
-
             long lastDelta = Math.Abs(matchValue - humanSideValueRef1);
 
             while (matchValue != humanSideValue) {

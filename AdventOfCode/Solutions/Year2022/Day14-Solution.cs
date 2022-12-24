@@ -13,10 +13,10 @@ class Day14 : ASolution
     {
     }
 
-    IntCoord min, max, spawn = (500,0);
+    Int2 min, max, spawn = (500,0);
     int killY = 0, floorY = 0;
-    Dictionary<IntCoord, char> scan = new();
-    IntCoord[] dirs = new IntCoord[] { IntCoord.Down, IntCoord.Down + IntCoord.Left, IntCoord.Down + IntCoord.Right };
+    Dictionary<Int2, char> scan = new();
+    Int2[] dirs = new Int2[] { Int2.Down, Int2.Down + Int2.Left, Int2.Down + Int2.Right };
     protected override void ParseInput() {
         scan.Clear();
         foreach(var line in Input.SplitByNewline(false, true)) {
@@ -28,14 +28,14 @@ class Day14 : ASolution
                 .ToList();
 
             for(int i = 0; i < points.Count - 1; i++) {
-                IntCoord start = points[i], end = points[i + 1];
+                Int2 start = points[i], end = points[i + 1];
                 int xDelta = 0, yDelta = 0;
                 if (start.X > end.X) xDelta = -1;
                 else if( start.X < end.X) xDelta = 1;
                 if (start.Y > end.Y) yDelta = -1;
                 else if( start.Y < end.Y) yDelta = 1;
 
-                IntCoord at = start, delta = (xDelta, yDelta);
+                Int2 at = start, delta = (xDelta, yDelta);
                 while( at != end ) {
                     scan[at] = Rock;
                     at += delta;
@@ -63,7 +63,7 @@ class Day14 : ASolution
 
         bool didKill = false;
         while(!didKill) {
-            IntCoord falling = spawn;
+            Int2 falling = spawn;
             bool didMove;
             do {
                 didMove = false;
@@ -93,7 +93,7 @@ class Day14 : ASolution
     {
         while (true) {
             if (scan.ContainsKey(spawn)) break;
-            IntCoord falling = spawn;
+            Int2 falling = spawn;
             bool didMove;
             do {
                 didMove = false;

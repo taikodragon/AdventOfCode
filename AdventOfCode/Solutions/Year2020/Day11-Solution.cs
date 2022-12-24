@@ -26,16 +26,16 @@ namespace AdventOfCode.Solutions.Year2020
         }
 
 
-        static IntCoord[] ComputeAdjacent(IntCoord fromCoord) {
-            return new IntCoord[] {
-                new IntCoord(fromCoord.X - 1, fromCoord.Y - 1),
-                new IntCoord(fromCoord.X - 1, fromCoord.Y),
-                new IntCoord(fromCoord.X - 1, fromCoord.Y + 1),
-                new IntCoord(fromCoord.X, fromCoord.Y + 1),
-                new IntCoord(fromCoord.X, fromCoord.Y - 1),
-                new IntCoord(fromCoord.X + 1, fromCoord.Y - 1),
-                new IntCoord(fromCoord.X + 1, fromCoord.Y),
-                new IntCoord(fromCoord.X + 1, fromCoord.Y + 1),
+        static Int2[] ComputeAdjacent(Int2 fromCoord) {
+            return new Int2[] {
+                new Int2(fromCoord.X - 1, fromCoord.Y - 1),
+                new Int2(fromCoord.X - 1, fromCoord.Y),
+                new Int2(fromCoord.X - 1, fromCoord.Y + 1),
+                new Int2(fromCoord.X, fromCoord.Y + 1),
+                new Int2(fromCoord.X, fromCoord.Y - 1),
+                new Int2(fromCoord.X + 1, fromCoord.Y - 1),
+                new Int2(fromCoord.X + 1, fromCoord.Y),
+                new Int2(fromCoord.X + 1, fromCoord.Y + 1),
             };
         }
 
@@ -43,7 +43,7 @@ namespace AdventOfCode.Solutions.Year2020
         {
             Occupied, Empty, Floor, Wall
         }
-        static OccupiedResult IsOccupied(char[,] map, IntCoord at) {
+        static OccupiedResult IsOccupied(char[,] map, Int2 at) {
             if( at.X < 0 || at.Y < 0) return OccupiedResult.Wall;
             if( at.X >= map.GetLength(0) || at.Y >= map.GetLength(1) ) return OccupiedResult.Wall;
             if( map[at.X, at.Y] == floor ) return OccupiedResult.Floor;
@@ -55,7 +55,7 @@ namespace AdventOfCode.Solutions.Year2020
             char[,] next = (char[,])now.Clone();
             for(int x = 0; x < next.GetLength(0); ++x ) {
                 for(int y = 0; y < next.GetLength(1); ++y ) {
-                    IntCoord at = new IntCoord(x, y);
+                    Int2 at = new Int2(x, y);
                     int adjacentCount = ComputeAdjacent(at).Count(c => IsOccupied(now, c) == OccupiedResult.Occupied);
                     if( now[x,y] == empty && adjacentCount == 0 )
                         next[x,y] = occupied;
@@ -100,29 +100,29 @@ namespace AdventOfCode.Solutions.Year2020
         {
             N, NE, E, SE, S, SW, W, NW
         }
-        static IntCoord GetAdjacentCoord(IntCoord at, Direction dir, int dist) {
+        static Int2 GetAdjacentCoord(Int2 at, Direction dir, int dist) {
             switch(dir) {
                 case Direction.N:
-                    return new IntCoord(at.X - dist, at.Y);
+                    return new Int2(at.X - dist, at.Y);
                 case Direction.NE:
-                    return new IntCoord(at.X - dist, at.Y + dist);
+                    return new Int2(at.X - dist, at.Y + dist);
                 case Direction.NW:
-                    return new IntCoord(at.X - dist, at.Y - dist);
+                    return new Int2(at.X - dist, at.Y - dist);
                 case Direction.E:
-                    return new IntCoord(at.X, at.Y + dist);
+                    return new Int2(at.X, at.Y + dist);
                 case Direction.W:
-                    return new IntCoord(at.X, at.Y - dist);
+                    return new Int2(at.X, at.Y - dist);
                 case Direction.S:
-                    return new IntCoord(at.X + dist, at.Y);
+                    return new Int2(at.X + dist, at.Y);
                 case Direction.SE:
-                    return new IntCoord(at.X + dist, at.Y + dist);
+                    return new Int2(at.X + dist, at.Y + dist);
                 case Direction.SW:
-                    return new IntCoord(at.X + dist, at.Y - dist);
+                    return new Int2(at.X + dist, at.Y - dist);
             }
             return at;
         }
 
-        static int FindAdjacentOccupied(char[,] map, IntCoord at) {
+        static int FindAdjacentOccupied(char[,] map, Int2 at) {
             int occupiedCount = 0;
             Direction[] dirs = new Direction[] { Direction.N, Direction.NE, Direction.E, Direction.SE, Direction.S, Direction.SW, Direction.W, Direction.NW };
             foreach(var dir in dirs) {
@@ -154,7 +154,7 @@ namespace AdventOfCode.Solutions.Year2020
             char[,] next = (char[,])now.Clone();
             for( int x = 0; x < next.GetLength(0); ++x ) {
                 for( int y = 0; y < next.GetLength(1); ++y ) {
-                    IntCoord at = new IntCoord(x, y);
+                    Int2 at = new Int2(x, y);
                     
                     int adjacentCount = FindAdjacentOccupied(now, at);
                     if( now[x, y] == empty && adjacentCount == 0 )

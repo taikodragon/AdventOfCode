@@ -10,13 +10,13 @@ namespace AdventOfCode.Solutions.Year2021
     [DayInfo(2021, 09, "Smoke Basin")]
     class Day09 : ASolution
     {
-        Dictionary<IntCoord, int> heightMap = new();
-        List<IntCoord> minima = new();
+        Dictionary<Int2, int> heightMap = new();
+        List<Int2> minima = new();
         int maxRow, maxCol;
-        IntCoord up = new IntCoord(1, 0),
-            down = new IntCoord(-1, 0),
-            left = new IntCoord(0, -1),
-            right = new IntCoord(0, 1);
+        Int2 up = new Int2(1, 0),
+            down = new Int2(-1, 0),
+            left = new Int2(0, -1),
+            right = new Int2(0, 1);
 
         public Day09() : base(false)
         {
@@ -25,7 +25,7 @@ namespace AdventOfCode.Solutions.Year2021
                 int col = 0;
                 foreach (char cell in line) {
                     int height = int.Parse(cell.ToString());
-                    heightMap.Add(new IntCoord(row, col), height);
+                    heightMap.Add(new Int2(row, col), height);
                     col++;
                 }
                 if( col > maxCol ) maxCol = col;
@@ -36,11 +36,11 @@ namespace AdventOfCode.Solutions.Year2021
 
         protected override string SolvePartOne()
         {
-            IntCoord at;
+            Int2 at;
             int sum = 0;
             for(int x = 0; x < maxRow; x++) {
                 for (int y = 0; y < maxCol; y++) {
-                    at = new IntCoord(x, y);
+                    at = new Int2(x, y);
                     int myHeight = heightMap[at];
 
                     if (heightMap.GetValueOrDefault(at + up, 10) <= myHeight ||
@@ -58,22 +58,22 @@ namespace AdventOfCode.Solutions.Year2021
 
         protected override string SolvePartTwo()
         {
-            IntCoord[] directions = new IntCoord[] {
+            Int2[] directions = new Int2[] {
                 up, down, left, right
             };
             List<int> areas = new();
             foreach(var low in minima) {
                 int cellCount = 0;
-                Queue<IntCoord> pending = new();
+                Queue<Int2> pending = new();
                 pending.Enqueue(low);
 
-                HashSet<IntCoord> visited = new();
+                HashSet<Int2> visited = new();
                 visited.Add(low);
                 while(pending.Count > 0) {
-                    IntCoord at = pending.Dequeue();
+                    Int2 at = pending.Dequeue();
                     cellCount++;
                     foreach(var dir in directions) {
-                        IntCoord next = at + dir;
+                        Int2 next = at + dir;
                         if( heightMap.GetValueOrDefault(next, 10) < 9 && !visited.Contains(next) ) {
                             visited.Add(next);
                             pending.Enqueue(next);

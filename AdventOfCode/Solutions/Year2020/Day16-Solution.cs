@@ -13,8 +13,8 @@ namespace AdventOfCode.Solutions.Year2020
         class Rule
         {
             public string Label;
-            public IntCoord RangeLow;
-            public IntCoord RangeHigh;
+            public Int2 RangeLow;
+            public Int2 RangeHigh;
             public bool IsValidInRange(int num) {
                 return (num >= RangeLow.X && num <= RangeLow.Y) || (num >= RangeHigh.X && num <= RangeHigh.Y);
             }
@@ -34,8 +34,8 @@ namespace AdventOfCode.Solutions.Year2020
                 var parts = line.Split(new string[] { ": ", " or ", "-" }, StringSplitOptions.RemoveEmptyEntries);
                 rules.Add(new Rule {
                     Label = parts[0],
-                    RangeLow = new IntCoord(int.Parse(parts[1]), int.Parse(parts[2])),
-                    RangeHigh = new IntCoord(int.Parse(parts[3]), int.Parse(parts[4]))
+                    RangeLow = new Int2(int.Parse(parts[1]), int.Parse(parts[2])),
+                    RangeHigh = new Int2(int.Parse(parts[3]), int.Parse(parts[4]))
                 });
             }
 
@@ -58,8 +58,8 @@ namespace AdventOfCode.Solutions.Year2020
                 .ToList()
                 .ForEach(parts => rules.Add(new Rule {
                     Label = parts[0],
-                    RangeLow = new IntCoord(int.Parse(parts[1]), int.Parse(parts[2])),
-                    RangeHigh = new IntCoord(int.Parse(parts[3]), int.Parse(parts[4]))
+                    RangeLow = new Int2(int.Parse(parts[1]), int.Parse(parts[2])),
+                    RangeHigh = new Int2(int.Parse(parts[3]), int.Parse(parts[4]))
                 }));
 
             var others = groups[2]

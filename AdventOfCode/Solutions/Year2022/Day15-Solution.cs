@@ -48,8 +48,8 @@ class Day15 : ASolution
             }
         }
 
-        HashSet<IntCoord> withinRadius = new(xMax - xMin);
-        HashSet<IntCoord> foundBeacons = new(sensorsInRange.Count);
+        HashSet<Int2> withinRadius = new(xMax - xMin);
+        HashSet<Int2> foundBeacons = new(sensorsInRange.Count);
 
         foreach(var sensor in sensorsInRange) {
             if (sensor.NearestBeacon.Y == yRef) foundBeacons.Add(sensor.NearestBeacon);
@@ -65,22 +65,22 @@ class Day15 : ASolution
         return withinRadius.Count - foundBeacons.Count;
     }
 
-    HashSet<IntCoord> maybeBeacon = new();
+    HashSet<Int2> maybeBeacon = new();
     protected override object SolvePartTwoRaw() {
         OutputAlways = true;
 
         int max = UseDebugInput ? 20 : 4_000_000;
 
-        IntCoord se = IntCoord.Down + IntCoord.Right,
-            sw = IntCoord.Down + IntCoord.Left,
-            nw = IntCoord.Up + IntCoord.Left,
-            ne = IntCoord.Up + IntCoord.Right;
+        Int2 se = Int2.Down + Int2.Right,
+            sw = Int2.Down + Int2.Left,
+            nw = Int2.Up + Int2.Left,
+            ne = Int2.Up + Int2.Right;
 
         var result = Parallel.ForEach(sensors, (sensor, state) => {
-            IntCoord pos = sensor.Position;
-            IntCoord delta = se;
-            IntCoord pt = sensor.Position + (0, -(sensor.Radius + 1));
-            IntCoord start = pt;
+            Int2 pos = sensor.Position;
+            Int2 delta = se;
+            Int2 pt = sensor.Position + (0, -(sensor.Radius + 1));
+            Int2 start = pt;
             Sensor[] nearby = sensors
                 .Where(s => Utilities.ManhattanDistance(s.Position, sensor.Position) < (sensor.Radius + s.Radius + 2))
                 .ToArray();
@@ -109,11 +109,11 @@ class Day15 : ASolution
     }
 
     class Sensor {
-        public readonly IntCoord Position;
-        public readonly IntCoord NearestBeacon;
+        public readonly Int2 Position;
+        public readonly Int2 NearestBeacon;
         public readonly int Radius;
 
-        public Sensor(IntCoord position, IntCoord nearestBeacon) {
+        public Sensor(Int2 position, Int2 nearestBeacon) {
             Position = position;
             NearestBeacon = nearestBeacon;
             Radius = Utilities.ManhattanDistance(position, nearestBeacon);

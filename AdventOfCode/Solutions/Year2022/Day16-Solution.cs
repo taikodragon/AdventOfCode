@@ -21,8 +21,6 @@ namespace AdventOfCode.Solutions.Year2022
     [DayInfo(2022, 16, "Proboscidea Volcanium")]
     class Day16 : ASolution
     {
-
-
         public Day16() : base(false)
         {
             
@@ -30,13 +28,13 @@ namespace AdventOfCode.Solutions.Year2022
 
         Dictionary<string, ValveData> valves = new();
         protected override void ParseInput() {
-            foreach (var line in Input.SplitByNewline(false, true)) {
-                string[] content = line.Replace("Valve ", string.Empty)
+            string input = Input.Replace("Valve ", string.Empty)
                     .Replace("has flow rate=", string.Empty)
                     .Replace("; tunnels lead to valves", string.Empty)
                     .Replace("; tunnel leads to valve", string.Empty)
-                    .Replace(",", string.Empty)
-                    .Split(' ');
+                    .Replace(",", string.Empty);
+            foreach (var line in input.SplitByNewline(false, true)) {
+                string[] content = line.Split(' ');
 
                 ValveData v = new(content[0], int.Parse(content[1]));
                 v.exits.AddRange(content.Skip(2));
@@ -158,12 +156,6 @@ namespace AdventOfCode.Solutions.Year2022
                         ValveData loc = valves[actor.at];
                         var (next, _) = PickNext(loc, state);
                         if (next != default) {
-                            //ValveData otherLoc = valves[otherActor.openNext ?? otherActor.at];
-                            //int othersTimeToNext = otherLoc.timeToDestination.First(t => t.id == next.id).time;
-                            //if ( (next.time + otherActor.followPath.Count) > othersTimeToNext ) {
-                            //    WriteLine($"{(actor == you ? "You" : "Elephant")} skips as other is closer to {next.id}");
-                            //}
-                            //else {
                                 WriteLine($"{(actor == you ? "You" : "Elephant")} target to {next.Id}");
                                 actor.openNext = next.Id;
                                 openNextSet.Add(next.Id);

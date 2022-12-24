@@ -16,7 +16,7 @@ class Day08 : ASolution
     public Day08() : base(false) {
     }
 
-    Dictionary<IntCoord, int> grid = new Dictionary<IntCoord, int>();
+    Dictionary<Int2, int> grid = new Dictionary<Int2, int>();
     protected override void ParseInput() {
         var arr = Input.SplitByNewline();
         width = arr[0].Length;
@@ -29,13 +29,13 @@ class Day08 : ASolution
         }
     }
     protected override string SolvePartOne() {
-        HashSet<IntCoord> visLog = new() {
+        HashSet<Int2> visLog = new() {
             new(0, 0),
             new(width - 1, 0),
             new(0, height - 1),
             new(width - 1, height - 1),
         };
-        Queue<(IntCoord start, IntCoord stride)> walks = new();
+        Queue<(Int2 start, Int2 stride)> walks = new();
         for(int x = 1; x < width - 1; x++) {
             walks.Enqueue((new(x, 0), new(0, 1)));
             walks.Enqueue((new(x, height - 1), new(0, -1)));
@@ -47,7 +47,7 @@ class Day08 : ASolution
 
         while(walks.Count > 0) {
             var walk = walks.Dequeue();
-            IntCoord at = walk.start + walk.stride;
+            Int2 at = walk.start + walk.stride;
             visLog.Add(walk.start);
             int last = grid[walk.start];
             while(at.X < width && at.X >= 0 && at.Y < height && at.Y >= 0) {
@@ -62,12 +62,12 @@ class Day08 : ASolution
         return visLog.Count.ToString();
     }
     protected override string SolvePartTwo() {
-        (IntCoord xy, int score) highestView = (new(-1, -1), 0);
-        IntCoord up = new(0, -1), down = new(0, 1), left = new(-1, 0), right = new(1, 0);
+        (Int2 xy, int score) highestView = (new(-1, -1), 0);
+        Int2 up = new(0, -1), down = new(0, 1), left = new(-1, 0), right = new(1, 0);
         foreach(var kv in grid) {
             var start = kv.Key;
             var refHeight = kv.Value;
-            Queue<(IntCoord start, IntCoord stride)> walks = new();
+            Queue<(Int2 start, Int2 stride)> walks = new();
             walks.Enqueue((start + up, up));
             walks.Enqueue((start + down, down));
             walks.Enqueue((start + left, left));
@@ -77,7 +77,7 @@ class Day08 : ASolution
             while(walks.Count > 0 && score > 0) {
                 var walk = walks.Dequeue();
                 int walkScore = 0;
-                IntCoord at = walk.start;
+                Int2 at = walk.start;
                 while (at.X < width && at.X >= 0 && at.Y < height && at.Y >= 0) {
                     walkScore++;
                     if (grid[at] >= refHeight) {

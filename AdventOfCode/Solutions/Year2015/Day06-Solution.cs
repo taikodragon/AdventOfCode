@@ -15,8 +15,8 @@ namespace AdventOfCode.Solutions.Year2015
         class Instruction
         {
             public LightState NewState { get; set; }
-            public IntCoord Lower { get; set; }
-            public IntCoord Upper { get; set; }
+            public Int2 Lower { get; set; }
+            public Int2 Upper { get; set; }
         }
         List<Instruction> instructions = new List<Instruction>();
         public Day06() : base(false)
@@ -27,8 +27,8 @@ namespace AdventOfCode.Solutions.Year2015
                 string[] lineParts = line.Replace("turn ", string.Empty).Split(new char[] { ' ', ',' });
                 instructions.Add(new Instruction {
                     NewState = (LightState)Enum.Parse(typeof(LightState), lineParts[0], true),
-                    Lower = new IntCoord(int.Parse(lineParts[1]), int.Parse(lineParts[2])),
-                    Upper = new IntCoord(int.Parse(lineParts[4]), int.Parse(lineParts[5]))
+                    Lower = new Int2(int.Parse(lineParts[1]), int.Parse(lineParts[2])),
+                    Upper = new Int2(int.Parse(lineParts[4]), int.Parse(lineParts[5]))
                 });
             }
         }
@@ -52,7 +52,7 @@ namespace AdventOfCode.Solutions.Year2015
             }
 
             StringBuilder sb = new StringBuilder(1000 * 1000 + 1000);
-            DoInstructionForRange(new Instruction { Lower = new IntCoord(0, 0), Upper = new IntCoord(999, 999) },
+            DoInstructionForRange(new Instruction { Lower = new Int2(0, 0), Upper = new Int2(999, 999) },
                 (ix, iy, _) => sb.Append(string.Concat(iy == 0 ? "\n" : "", lights[ix, iy] ? '#' : '-')));
             Trace.WriteLine(sb);
 
@@ -73,7 +73,7 @@ namespace AdventOfCode.Solutions.Year2015
             }
 
             StringBuilder sb = new StringBuilder(1000 * 1000 + 1000);
-            DoInstructionForRange(new Instruction { Lower = new IntCoord(0, 0), Upper = new IntCoord(999, 999) },
+            DoInstructionForRange(new Instruction { Lower = new Int2(0, 0), Upper = new Int2(999, 999) },
                 (ix, iy, _) => sb.Append(string.Concat(iy == 0 ? "\n" : "", lights[ix, iy] == 0 ? "-" : Math.Min(9, lights[ix,iy]).ToString())));
             Trace.WriteLine(sb);
 

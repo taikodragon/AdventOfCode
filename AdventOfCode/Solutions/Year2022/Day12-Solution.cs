@@ -12,12 +12,12 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
         queue = new(5000, this);
     }
 
-    readonly IntCoord[] dirs = new IntCoord[] { IntCoord.Right, IntCoord.Up, IntCoord.Down, IntCoord.Left };
+    readonly Int2[] dirs = new Int2[] { Int2.Right, Int2.Up, Int2.Down, Int2.Left };
 
     List<string> grid;
-    IntCoord start, end, max;
+    Int2 start, end, max;
     readonly List<Region> regions = new();
-    readonly Dictionary<IntCoord, Region> pointToRegion = new();
+    readonly Dictionary<Int2, Region> pointToRegion = new();
 
     readonly PriorityQueue<Pathway, Pathway> queue;
 
@@ -45,7 +45,7 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
 
         for(y = 0; y < max.Y; y++) {
             for(x = 0; x < max.X; x++) {
-                IntCoord at = (x, y);
+                Int2 at = (x, y);
                 int myHeight = CoordHeight(grid, at);
                 var neighbors = dirs
                     .Select(d => at + d)
@@ -94,7 +94,7 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
 
         // clear points from the region table
         while(regions.Any(r => !r.Routable)) {
-            HashSet<IntCoord> dead = new(pointToRegion.Count);
+            HashSet<Int2> dead = new(pointToRegion.Count);
             foreach (var region in regions.Where(r => !r.Routable)) {
                 foreach (var pt in region.area) {
                     dead.Add(pt);
@@ -125,7 +125,7 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
             StringBuilder sb = new(pointToRegion.Count + (2 * grid.Count));
             for (y = 0; y < max.Y; y++) {
                 for (x = 0; x < max.X; x++) {
-                    IntCoord at = (x, y);
+                    Int2 at = (x, y);
                     int idx = regions.IndexOf(pointToRegion.GetValueOrDefault(at));
                     if (idx == -1) sb.Append(" . ");
                     else { sb.Append($"{idx,2} "); }
@@ -146,13 +146,13 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
         var result = queue.Dequeue();
         return result;
     }
-    bool ValidCoord(IntCoord coord) {
+    bool ValidCoord(Int2 coord) {
         return coord.X >= 0 && coord.Y >= 0 && coord.X < max.X && coord.Y < max.Y;
     }
-    static int CoordHeight(List<string> grid, IntCoord coord) {
+    static int CoordHeight(List<string> grid, Int2 coord) {
         return grid[coord.Y][coord.X] - 'a';
     }
-    static bool Reachable(List<string> grid, IntCoord self, IntCoord other) {
+    static bool Reachable(List<string> grid, Int2 self, Int2 other) {
         if (Utilities.ManhattanDistance(self, other) != 1) return false;
         return CoordHeight(grid, other) - 1 <= CoordHeight(grid, self);
     }
@@ -167,7 +167,7 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
 
     }
     protected override object SolvePartTwoRaw() {
-        HashSet<IntCoord> starts = pointToRegion[start].area;
+        HashSet<Int2> starts = pointToRegion[start].area;
         List<Pathway> finals = new();
         foreach(var startPt in starts) {
             var thisFinals = FindPath(startPt);
@@ -182,9 +182,9 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
         return null;
     }
 
-    List<Pathway> FindPath(IntCoord start) {
+    List<Pathway> FindPath(Int2 start) {
         List<Pathway> finals = new();
-        Dictionary<IntCoord, Pathway> cheapestTo = new();
+        Dictionary<Int2, Pathway> cheapestTo = new();
         queue.Clear();
         EnqueuePathway(new(grid, new(), start, end));
         while (queue.Count > 0) {
@@ -254,11 +254,11 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
     internal class Pathway 
     {
         readonly List<string> grid;
-        readonly HashSet<IntCoord> visited;
-        List<IntCoord> path = new();
-        IntCoord head;
+        readonly HashSet<Int2> visited;
+        List<Int2> path = new();
+        Int2 head;
 
-        public Pathway(List<string> grid, HashSet<IntCoord> visited, IntCoord head, IntCoord target) {
+        public Pathway(List<string> grid, HashSet<Int2> visited, Int2 head, Int2 target) {
             this.grid = grid ?? throw new ArgumentNullException(nameof(grid));
             this.visited = visited ?? throw new ArgumentNullException(nameof(visited));
 
@@ -268,15 +268,15 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
             this.Target = target;
         }
 
-        public IntCoord Head => head;
-        public IntCoord Target { get; set; }
-        public IReadOnlyList<IntCoord> Path => path;
+        public Int2 Head => head;
+        public Int2 Target { get; set; }
+        public IReadOnlyList<Int2> Path => path;
         public int Cost => path.Count - 1;
         public int Distance => Utilities.ManhattanDistance(head, Target);
         public bool Complete => head == Target;
         public int Height => grid[head.Y][head.X] - 'a';
 
-        public bool TryVisit(IntCoord coord) {
+        public bool TryVisit(Int2 coord) {
             if (Utilities.ManhattanDistance(head, coord) != 1) throw new ArgumentException("Not adjacent to head of path");
             if (visited.Contains(coord)) return false;
             if (!Reachable(grid, head, coord)) return false;
@@ -297,12 +297,12 @@ class Day12 : ASolution, IComparer<Day12.Pathway>
 
     class Region {
         public readonly int height;
-        public readonly HashSet<IntCoord> area = new();
-        public readonly HashSet<IntCoord> exitUp = new();
-        public readonly HashSet<IntCoord> exitDown = new();
+        public readonly HashSet<Int2> area = new();
+        public readonly HashSet<Int2> exitUp = new();
+        public readonly HashSet<Int2> exitDown = new();
         public bool Routable => exitUp.Count > 0 || exitDown.Count > 0;
 
-        public Region(int height, IntCoord startPt) {
+        public Region(int height, Int2 startPt) {
             this.height = height;
             area.Add(startPt);
         }

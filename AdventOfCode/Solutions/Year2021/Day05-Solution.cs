@@ -9,10 +9,10 @@ namespace AdventOfCode.Solutions.Year2021
     class Line
     {
         public bool IsStraight => Start.X == End.X || Start.Y == End.Y;
-        public IntCoord Start { get; set; }
-        public IntCoord End { get; set; }
+        public Int2 Start { get; set; }
+        public Int2 End { get; set; }
 
-        public List<IntCoord> Points { get; set; } = new List<IntCoord>();
+        public List<Int2> Points { get; set; } = new List<Int2>();
 
         public void MakePointStraight() {
             Points.Clear();
@@ -20,12 +20,12 @@ namespace AdventOfCode.Solutions.Year2021
             if( Start.X == End.X ) {
                 int yMax = Math.Max(Start.Y, End.Y), yMin = Math.Min(Start.Y, End.Y);
                 for(int y = yMin; y <= yMax; y++) {
-                    Points.Add(new IntCoord(Start.X, y));
+                    Points.Add(new Int2(Start.X, y));
                 }
             } else {
                 int xMax = Math.Max(Start.X, End.X), xMin = Math.Min(Start.X, End.X);
                 for (int x = xMin; x <= xMax; x++) {
-                    Points.Add(new IntCoord(x, Start.Y));
+                    Points.Add(new Int2(x, Start.Y));
                 }
             }
         }
@@ -36,11 +36,11 @@ namespace AdventOfCode.Solutions.Year2021
 
             if (Start.X < End.X) {
                 for (int x = Start.X, y = Start.Y; x <= End.X; x += 1, y += yWalk) {
-                    Points.Add(new IntCoord(x, y));
+                    Points.Add(new Int2(x, y));
                 }
             } else {
                 for (int x = Start.X, y = Start.Y; x >= End.X; x += -1, y += yWalk) {
-                    Points.Add(new IntCoord(x, y));
+                    Points.Add(new Int2(x, y));
                 }
             }
         }
@@ -49,7 +49,7 @@ namespace AdventOfCode.Solutions.Year2021
     class Day05 : ASolution
     {
         List<Line> input;
-        Dictionary<IntCoord, int> cloud = new Dictionary<IntCoord, int>();
+        Dictionary<Int2, int> cloud = new Dictionary<Int2, int>();
 
         public Day05() : base(false)
         {
@@ -62,8 +62,8 @@ namespace AdventOfCode.Solutions.Year2021
                         .Select(int.Parse)
                         .ToArray();
                     var line =  new Line {
-                        Start = new IntCoord(coords[0], coords[1]),
-                        End = new IntCoord(coords[2], coords[3])
+                        Start = new Int2(coords[0], coords[1]),
+                        End = new Int2(coords[2], coords[3])
                     };
                     if (line.IsStraight) line.MakePointStraight();
                     else line.MakePointDiagonal();
