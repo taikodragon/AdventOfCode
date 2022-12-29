@@ -89,8 +89,25 @@ namespace AdventOfCode.Solutions
             return new Int2(lhs.X * rhs, lhs.Y * rhs);
         }
 
-        public double Dist(in Int2 other) {
+        public double DistSquared(in Int2 other) {
             return Math.Sqrt(Math.Pow(X - other.X, 2) + Math.Pow(Y - other.Y, 2));
         }
+        public static Int2 Offset(in Int2 position, in CompassDirection dir, int magnitude = 1) {
+            return position + (dir switch {
+                CompassDirection.N => North,
+                CompassDirection.S => South,
+                CompassDirection.W => West,
+                CompassDirection.E => East,
+                CompassDirection.NW => NorthWest,
+                CompassDirection.NE => NorthEast,
+                CompassDirection.SW => SouthWest,
+                CompassDirection.SE => SouthEast,
+                _ => throw new Exception("Unsupport direction")
+            } * magnitude);
+        }
+        public static int ManhattanDistance(in Int2 a, in Int2 b) {
+            return Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y);
+        }
+
     }
 }

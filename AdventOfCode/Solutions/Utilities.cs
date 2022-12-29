@@ -226,7 +226,48 @@ namespace AdventOfCode.Solutions
             return newValue;
         }
 
+        /// <summary>
+        /// Rotates the given <paramref name="direction"/> by 90 degrees counter-clockwise.
+        /// </summary>
+        /// <param name="direction">Compass bearing to be rotated.</param>
+        /// <exception cref="NotImplementedException">Thrown when a direction is not mapped.</exception>
+        public static CompassDirection CompassLeft90(this CompassDirection direction) {
+            return direction switch {
+                CompassDirection.N => CompassDirection.W,
+                CompassDirection.NW => CompassDirection.SW,
+                CompassDirection.W => CompassDirection.S,
+                CompassDirection.SW => CompassDirection.SE,
+                CompassDirection.S => CompassDirection.E,
+                CompassDirection.SE => CompassDirection.NE,
+                CompassDirection.E => CompassDirection.N,
+                CompassDirection.NE => CompassDirection.NW,
+                _ => throw new NotImplementedException()
+            };
+        }
+
+        /// <summary>
+        /// Rotates the given <paramref name="direction"/> by 90 degrees clockwise.
+        /// </summary>
+        /// <param name="direction">Compass bearing to be rotated.</param>
+        /// <exception cref="NotImplementedException">Thrown when a direction is not mapped.</exception>
+        public static CompassDirection CompassRight90(this CompassDirection direction) {
+            return direction switch {
+                CompassDirection.N => CompassDirection.E,
+                CompassDirection.NE => CompassDirection.SE,
+                CompassDirection.E => CompassDirection.S,
+                CompassDirection.SE => CompassDirection.SW,
+                CompassDirection.S => CompassDirection.W,
+                CompassDirection.SW => CompassDirection.NW,
+                CompassDirection.W => CompassDirection.N,
+                CompassDirection.NW => CompassDirection.NE,
+                _ => throw new NotImplementedException()
+            };
+        }
     }
+
+    /// <summary>
+    /// The generally bearings on a Compass
+    /// </summary>
     public enum CompassDirection
     {
         N,
@@ -238,6 +279,7 @@ namespace AdventOfCode.Solutions
         W,
         NW
     }
+
 
 
 }
