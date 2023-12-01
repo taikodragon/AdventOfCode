@@ -11,7 +11,7 @@ namespace AdventOfCode.Solutions.Year2023;
 class Day14 : ASolution
 {
 
-    public Day14() : base(false)
+    public Day14() : base(true)
     {
             
     }
@@ -21,12 +21,12 @@ class Day14 : ASolution
 
     }
 
-    protected override string SolvePartOne()
+    protected override object SolvePartOneRaw()
     {
         return null;
     }
 
-    protected override string SolvePartTwo()
+    protected override object SolvePartTwoRaw()
     {
         return null;
     }

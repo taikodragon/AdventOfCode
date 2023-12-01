@@ -20,13 +20,10 @@ namespace AdventOfCode.Solutions.Year2015
         protected override string SolvePartOne()
         {
             long sum = 0;
-            using( StringReader reader = new StringReader(Input) ) {
-                using(var jReader = new JsonTextReader(reader)) {
-                    while(jReader.Read()) {
-                        if( jReader.TokenType == JsonToken.Integer ) {
-                            sum += (Int64)jReader.Value;
-                        }
-                    }
+            var jReader = new System.Text.Json.Utf8JsonReader(new ReadOnlySpan<byte>(Encoding.UTF8.GetBytes(Input)));
+            while(jReader.Read()) {
+                if( jReader.TokenType == System.Text.Json.JsonTokenType.Number ) {
+                    sum += jReader.GetInt64();
                 }
             }
             return sum.ToString();

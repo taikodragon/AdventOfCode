@@ -16,7 +16,7 @@ namespace AdventOfCode.Solutions.Year<YEAR>;
 class Day<DAY> : ASolution
 {
 
-    public Day<DAY>() : base(false)
+    public Day<DAY>() : base(true)
     {
             
     }
@@ -26,12 +26,12 @@ class Day<DAY> : ASolution
 
     }
 
-    protected override string SolvePartOne()
+    protected override object SolvePartOneRaw()
     {
         return null;
     }
 
-    protected override string SolvePartTwo()
+    protected override object SolvePartTwoRaw()
     {
         return null;
     }
