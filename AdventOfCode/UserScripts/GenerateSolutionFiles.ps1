@@ -26,12 +26,12 @@ class Day<DAY> : ASolution
 
     }
 
-    protected override object SolvePartOneRaw()
+    protected override string SolvePartOne()
     {
         return null;
     }
 
-    protected override object SolvePartTwoRaw()
+    protected override string SolvePartTwo()
     {
         return null;
     }
