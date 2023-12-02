@@ -17,17 +17,18 @@ class Day01 : ASolution
             
     }
 
+    List<string> lines;
     protected override void ParseInput()
     {
-
+        lines = Input.SplitByNewline(false, true);
     }
 
     protected override object SolvePartOneRaw()
     {
-        return Input.SplitByNewline(false, true)
+        return lines
             .Select(s => s.Where(char.IsDigit).ToArray())
             .Where(arr => arr.Length >= 1)
-            .Select(arr => (arr.First() - '0') * 10 + (arr.Last() - '0'))
+            .Select(arr => ((arr[0] - '0') * 10) + (arr[^1] - '0'))
             .Sum();
     }
 
@@ -36,7 +37,7 @@ class Day01 : ASolution
         string[] numbers = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
 
         int sum = 0;
-        foreach(string line in Input.SplitByNewline(false, true)) {
+        foreach(string line in lines) {
             List<int> lineNums = [];
 
             for(int i = 0; i < line.Length; i++) {
@@ -52,7 +53,7 @@ class Day01 : ASolution
                     }
                 }
             }
-            sum += lineNums.First() * 10 + lineNums.Last();
+            sum += lineNums[0] * 10 + lineNums[^1];
         }
         return sum;
     }
