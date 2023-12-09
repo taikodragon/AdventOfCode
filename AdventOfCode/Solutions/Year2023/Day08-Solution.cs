@@ -8,7 +8,7 @@ using Windows.Services.Maps;
 
 namespace AdventOfCode.Solutions.Year2023;
 
-[DayInfo(2023, 08, "")]
+[DayInfo(2023, 08, "Haunted Wasteland")]
 class Day08 : ASolution
 {
 
