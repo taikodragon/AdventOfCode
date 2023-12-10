@@ -32,7 +32,6 @@ class Day08 : ASolution
 
     protected override object SolvePartOneRaw()
     {
-        return null;
         int steps = 0;
         int i = 0;
         string at = "AAA";
