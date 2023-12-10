@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Windows.Media.Playback;
 
 namespace AdventOfCode.Solutions.Year2023;
 
@@ -11,7 +12,8 @@ namespace AdventOfCode.Solutions.Year2023;
 class Day10 : ASolution
 {
     class PipeSegment {
-        public CompassDirection[] ExitDirs = new CompassDirection[2];
+        public CompassDirection[] ExitDirs;
+        public CompassDirection[] SideDirs;
         public Int2[] Exits = new Int2[2];
         public Int2 Position = Int2.Zero;
         public PipeSegment[] PipeExits = new PipeSegment[2];
@@ -38,6 +40,48 @@ class Day10 : ASolution
                 _ => throw new Exception("Unknown pipe: " + symbol)
 
             };
+        }
+        public static CompassDirection[] SymbolToSides(char symbol, CompassDirection heading) {
+            // ALways take right hand of heading
+            switch(symbol) {
+                case '|':
+                    return heading switch {
+                        CompassDirection.N => [CompassDirection.E],
+                        CompassDirection.S => [CompassDirection.W],
+                        _ => throw new Exception($"symbol {symbol} heading {heading} undefined")
+                    };
+                case '-':
+                    return heading switch {
+                        CompassDirection.E => [CompassDirection.S],
+                        CompassDirection.W => [CompassDirection.N],
+                        _ => throw new Exception($"symbol {symbol} heading {heading} undefined")
+                    };
+                case 'L':
+                    return heading switch {
+                        CompassDirection.S => [CompassDirection.W, CompassDirection.SW, CompassDirection.S],
+                        CompassDirection.W => [CompassDirection.NE],
+                        _ => throw new Exception($"symbol {symbol} heading {heading} undefined")
+                    };
+                case 'J':
+                    return heading switch {
+                        CompassDirection.S => [CompassDirection.NW],
+                        CompassDirection.E => [CompassDirection.S, CompassDirection.SE, CompassDirection.E],
+                        _ => throw new Exception($"symbol {symbol} heading {heading} undefined")
+                    };
+                case '7':
+                    return heading switch {
+                        CompassDirection.N => [CompassDirection.E, CompassDirection.NE, CompassDirection.N],
+                        CompassDirection.E => [CompassDirection.SW],
+                        _ => throw new Exception($"symbol {symbol} heading {heading} undefined")
+                    };
+                case 'F':
+                    return heading switch {
+                        CompassDirection.N => [CompassDirection.SE],
+                        CompassDirection.W => [CompassDirection.N, CompassDirection.NW, CompassDirection.W],
+                        _ => throw new Exception($"symbol {symbol} heading {heading} undefined")
+                    };
+                default: throw new Exception("Unknown symbol: " + symbol);
+            }
         }
         public static char ExitsToSymbol(CompassDirection[] exits) {
             bool Has(CompassDirection dir1, CompassDirection dir2) {
@@ -66,18 +110,20 @@ class Day10 : ASolution
         OutputAlways = true;
     }
 
-    Int2 start;
+    Int2 start, max;
     HashSet<Int2> ground = new();
     Dictionary<Int2, PipeSegment> map = new();
     protected override void ParseInput()
     {
         Int2 at = Int2.Zero;
+        void UpdateMax() { max.X = Math.Max(max.X, at.X); max.Y = Math.Max(max.Y, at.Y); }
         foreach(var line in Input.SplitByNewline()) {
             at.X = 0;
             foreach(char c in line) {
                 if (c == '.') { ground.Add(at); }
                 else if (c == 'S') { start = at; }
                 else { map[at] = new PipeSegment(c, at); }
+                UpdateMax();
                 at.X++;
             }
             at.Y++;
@@ -159,116 +205,83 @@ class Day10 : ASolution
     HashSet<Int2> loopOnly;
     protected override object SolvePartTwoRaw()
     {
-        HashSet<Int2> groundBoth = new(ground.Count * 4);
-        HashSet<Int2> mapDouble = new(map.Count * 2);
-        Int2 max = (-1, -1);
-        void UpdateMax(Int2 cMax) {
-            max.X = Math.Max(max.X, cMax.X);
-            max.Y = Math.Max(max.Y, cMax.Y);
-        }
-        foreach(var pipe in map.Values) {
-            if (!loopOnly.Contains(pipe.Position)) continue;
-            var dPos = pipe.Position * 2;
-            UpdateMax(dPos);
-            // Add self
-            mapDouble.Add(dPos);
-            // add halfsteps
-            for(int i = 0; i < 2; i++) {
-                var halfPos = Int2.Offset(dPos, pipe.ExitDirs[i]);
-                UpdateMax(halfPos);
-                mapDouble.Add(halfPos);
+        PipeSegment startPipe = map[start];
+        var walkDirs = Utilities.CardinalDirections;
+
+        HashSet<Int2> sideTiles = new();
+        foreach(CompassDirection startHeading in startPipe.ExitDirs) {
+            bool isOutside = false;
+            sideTiles.Clear();
+            // Get initial side tiles
+
+            CompassDirection[] sides = null;
+            switch (startPipe.Symbol) {
+                case '|':
+                case '-':
+                    sides = PipeSegment.SymbolToSides(startPipe.Symbol, startHeading);
+                    break;
+                case 'L':
+                case 'J':
+                case '7':
+                case 'F':
+                    sides = PipeSegment.SymbolToSides(startPipe.Symbol, startPipe.ExitDirs.First(d => d != startHeading).Compass180());
+                    break;
+                default: throw new Exception("Unknown symbol: " + startPipe.Symbol);
             }
-        }
-        foreach(var g in ground) {
-            groundBoth.Add(g * 2);
-            UpdateMax(g * 2);
-        }
-        // fill in half grounds
-        for(Int2 at = Int2.Zero; at.Y <= max.Y; at.Y++) {
-            for(at.X = 0; at.X <= max.X; at.X++) {
-                if (!mapDouble.Contains(at)) {
-                    groundBoth.Add(at);
-                    UpdateMax(at);
-                }
+            foreach(var d in sides) { sideTiles.Add(Int2.Offset(startPipe.Position, d)); }
+
+            PipeSegment at = map[Int2.Offset(startPipe.Position, startHeading)];
+            CompassDirection heading = startHeading;
+
+            while (at.Position != start) {
+                // Process me
+                sides = PipeSegment.SymbolToSides(at.Symbol, heading);
+                foreach (var d in sides) { sideTiles.Add(Int2.Offset(at.Position, d)); }
+
+                // Move next
+                var nextHeading = at.ExitDirs[0] == heading.Compass180() ? at.ExitDirs[1] : at.ExitDirs[0];
+                heading = nextHeading;
+                at = map[Int2.Offset(at.Position, nextHeading)];
             }
-        }
 
+            sideTiles.ExceptWith(loopOnly);
+            HashSet<Int2> sideTilesTouched = new();
+            List<HashSet<Int2>> fills = new();
+            
+            Queue<Int2> fillQueue = new();
 
-        HashSet<Int2> seenGround = new();
-        HashSet<Int2> touchOutside = new();
-        Dictionary<(Int2, CompassDirection), Int2?> terminations = new();
+            foreach(var tile in sideTiles) {
+                if (sideTilesTouched.Contains(tile)) continue; // don't refill when I already saw this tile
+                HashSet<Int2> fillEach = new();
+                fills.Add(fillEach);
+                fillQueue.Clear();
+                fillQueue.Enqueue(tile);
+                fillEach.Add(tile);
 
-        Int2? WalkToTerminal(Int2 start, CompassDirection dir) {
-            if (terminations.TryGetValue((start, dir), out var term)) return term;
+                while(fillQueue.Count > 0) {
+                    var atTile = fillQueue.Dequeue();
+                    // this fill hits outside, so this path hits outside
+                    isOutside = atTile.X < 0 || atTile.Y < 0 || atTile.X > max.X || atTile.Y > max.Y;
+                    if( isOutside ) break;
 
-            if (touchOutside.Contains(start)) return null;
-            else if( mapDouble.Contains(start) ) {
-                return start;
-            }
-            else if( groundBoth.Contains(start) ) {
-                var result = WalkToTerminal(Int2.Offset(start, dir), dir);
-                terminations.Add((start, dir), result);
-                return result;
-            } else { // not pipe or ground, so it outside
-                return null;
-            }
-        }
+                    if (sideTiles.Contains(atTile)) sideTilesTouched.Add(atTile);
 
-        var walkDirs = new CompassDirection[] { CompassDirection.N, CompassDirection.E, CompassDirection.S, CompassDirection.W };
-
-        int outsideGroundCount = -1, gens = 0;
-        while(touchOutside.Count != outsideGroundCount) {
-            // copy first so changes are detectable
-            outsideGroundCount = touchOutside.Count;
-            foreach (var at in groundBoth) {
-                if (touchOutside.Contains(at)) continue;
-                foreach (var dir in walkDirs) {
-                    Int2? result = null;
-                    result = WalkToTerminal(at, dir);
-                    if (result is null) { touchOutside.Add(at); break; }
-                }
-            }
-            terminations.Clear();
-            gens++;
-
-            if (gens <= 2) {
-                StringBuilder sb = new(max.X);
-                for (Int2 at = Int2.Zero; at.Y <= max.Y; at.Y += 1) {
-                    sb.Clear();
-                    for (at.X = 0; at.X <= max.X; at.X += 1) {
-                        if (touchOutside.Contains(at)) {
-                            sb.Append('O');
+                    foreach(var d in Utilities.CardinalDirections) {
+                        var nbr = Int2.Offset(atTile, d);
+                        // only fill into non-loop tiles
+                        if (!loopOnly.Contains(nbr) && !fillEach.Contains(nbr)) {
+                            fillQueue.Enqueue(nbr);
+                            fillEach.Add(nbr);
                         }
-                        else if (groundBoth.Contains(at)) {
-                            if (at.X % 2 == 1 || at.Y % 2 == 1)
-                                sb.Append(',');
-                            else
-                                sb.Append('.');
-                        }
-                        else if (mapDouble.Contains(at)) sb.Append('#'); //sb.Append(map[(at.X/2, at.Y/2)].Symbol);
-                        else sb.Append('!');
                     }
-                    WriteLine(sb);
                 }
-                WriteLine($"gens: {gens}");
+                if (isOutside) break;
             }
+            if (isOutside) continue;
+
+            return fills.Sum(fe => fe.Count);
         }
 
-        var inside = ground.Select(g => g * 2).Where(at => !touchOutside.Contains(at)).OrderBy(at => at.X).ThenBy(at => at.Y).ToList();
-
-        //StringBuilder sb = new(max.X);
-        //for (Int2 at = Int2.Zero; at.Y <= max.Y; at.Y += 1) {
-        //    sb.Clear();
-        //    for (at.X = 0; at.X <= max.X; at.X += 1) {
-        //        if (inside.Contains(at)) sb.Append('I');
-        //        else if (touchOutside.Contains(at)) sb.Append('~');
-        //        else if (groundBoth.Contains(at)) sb.Append('.');
-        //        else if (mapDouble.Contains(at)) sb.Append('#');
-        //        else sb.Append('!');
-        //    }
-        //    WriteLine(sb);
-        //}
-        //WriteLine($"gens: {gens}");
-        return inside.Count;
+        return "Broken";
     }
 }

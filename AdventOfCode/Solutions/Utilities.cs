@@ -12,6 +12,22 @@ namespace AdventOfCode.Solutions
 
     public static class Utilities
     {
+        public static readonly CompassDirection[] AllCompassDirections = [
+            CompassDirection.N,
+            CompassDirection.NE,
+            CompassDirection.E,
+            CompassDirection.SE,
+            CompassDirection.S,
+            CompassDirection.SW,
+            CompassDirection.W,
+            CompassDirection.NW
+        ];
+        public static readonly CompassDirection[] CardinalDirections = [
+            CompassDirection.N,
+            CompassDirection.E,
+            CompassDirection.S,
+            CompassDirection.W
+        ];
 
         public static int[] ToIntArray(this string str, string delimiter = "")
         {
@@ -263,6 +279,25 @@ namespace AdventOfCode.Solutions
                 _ => throw new NotImplementedException()
             };
         }
+
+        /// <summary>
+        /// Rotates the given <paramref name="direction"/> by 180 degrees clockwise.
+        /// </summary>
+        /// <param name="direction">Compass bearing to be rotated.</param>
+        /// <exception cref="NotImplementedException">Thrown when a direction is not mapped.</exception>
+        public static CompassDirection Compass180(this CompassDirection direction) {
+            return direction switch {
+                CompassDirection.N => CompassDirection.S,
+                CompassDirection.NE => CompassDirection.SW,
+                CompassDirection.E => CompassDirection.W,
+                CompassDirection.SE => CompassDirection.NW,
+                CompassDirection.S => CompassDirection.N,
+                CompassDirection.SW => CompassDirection.NE,
+                CompassDirection.W => CompassDirection.E,
+                CompassDirection.NW => CompassDirection.SE,
+                _ => throw new NotImplementedException()
+            };
+        }
     }
 
     /// <summary>
@@ -279,8 +314,5 @@ namespace AdventOfCode.Solutions
         W,
         NW
     }
-
-
-
 }
 
