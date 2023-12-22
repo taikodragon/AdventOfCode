@@ -1,24 +1,22 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security;
 using System.Text;
-using Windows.Devices.Input.Preview;
-using static AdventOfCode.Solutions.Year2023.Day12;
 
 namespace AdventOfCode.Solutions.Year2023;
-using GroupState = (int atIndex, SpringState state, int count);
 
 [DayInfo(2023, 12, "Hot Springs")]
 class Day12 : ASolution
 {
     public Day12() : base(false)
     {
-        //OutputAlways = true;
+        OutputAlways = true;
     }
 
-    public enum SpringState {
+    public enum SpringState : byte {
         Unknown,
         Operational,
         Broken,
@@ -41,7 +39,7 @@ class Day12 : ASolution
             _ => throw new Exception("Unknown state value: " + state)
         };
     }
-    void Print(List<GroupState> groups, int[] brokens, int indent = 0) {
+    void Print(List<GroupState> groups, int[] brokens, int indent = 0, bool? isAligned = null) {
         if (!OutputAlways) return;
 
         StringBuilder sb = new();
@@ -63,9 +61,31 @@ class Day12 : ASolution
             sb.Append("   ");
             sb.Append(string.Join(',', brokens));
         }
+
+        if( isAligned != null ) {
+            sb.Append("   ");
+            sb.Append(isAligned.ToString());
+        }
+
         WriteLine(sb);
     }
 
+    class GroupState {
+        public int atIndex;
+        public SpringState state;
+        public int count;
+
+        public GroupState(int atIndex, SpringState state, int count)
+        {
+            this.atIndex = atIndex;
+            this.state = state;
+            this.count = count;
+        }
+
+        public override string ToString() {
+            return $"{nameof(GroupState)}:{state} @{atIndex}--{count}";
+        }
+    }
     class PermGroup {
         public SpringState type;
         public int start, min, max, count;
@@ -80,7 +100,7 @@ class Day12 : ASolution
         public SpringState[] resolvedStates;
     }
 
-    List<Row> rows;
+    List<Row> rows, rows2;
 
     protected override void ParseInput()
     {
@@ -92,28 +112,48 @@ class Day12 : ASolution
                 brokenGroups = p[1..].Select(int.Parse).ToArray(),
             })
             .ToList();
-        //rows.ForEach(FixInitals);
+        rows2 = Input.SplitByNewline(false, true)
+            .Select(l => l.Split(' '))
+            .Select(p => new Row {
+                raw = p[0],
+                initialStates = string.Join('?', p[0], p[0], p[0], p[0], p[0]).Select(StateFromChar).ToArray(),
+                brokenGroups = string.Join(',', p[1], p[1], p[1], p[1], p[1]).Split(',').Select(int.Parse).ToArray(),
+            })
+            .ToList();
     }
 
 
-    static List<GroupState> GetGroups(IEnumerable<SpringState> states) {
-        int counter = 0;
-        SpringState lastState = SpringState.Operational;
-        List<GroupState> groups = new();
-        int i = 0;
-        foreach(var s in states) {
+    static List<GroupState> GetGroups(SpringState[] states, List<GroupState> fromGroups, int startFromGroup) {
+        List<GroupState> groups;
+        int counter;
+        SpringState lastState;
+        int i;
+        
+        if(fromGroups is null || startFromGroup <= 0) {
+            groups = new();
+            counter = 0;
+            lastState = SpringState.Operational;
+            i = 0;
+        } else {
+            groups = fromGroups[..(startFromGroup - 1)];
+            counter = fromGroups[startFromGroup - 1].count;
+            lastState = fromGroups[startFromGroup - 1].state;
+            i = fromGroups[startFromGroup].atIndex;
+        }
+
+        for(; i < states.Length; i++) {
+            var s = states[i];
             if (s != lastState) {
                 if (counter > 0) {
-                    groups.Add((i - counter, lastState, counter));
+                    groups.Add(new(i - counter, lastState, counter));
                 }
                 counter = 1;
                 lastState = s;
             }
             else counter++;
-            i++;
         }
         if (counter > 0) {
-            groups.Add((i - counter, lastState, counter));
+            groups.Add(new(i - counter, lastState, counter));
         }
         return groups;
     }
@@ -121,266 +161,165 @@ class Day12 : ASolution
         return groups.Where(g => g.state == SpringState.Broken).Select(g => g.count).ToArray();
     }
 
-    static int CountMatching(List<SpringState> states, int fromI, SpringState matching, int iter, bool inverse = false) {
-        int count = 0;
-        for (int i = fromI; i > -1 && i < states.Count; i += iter) {
-            if (inverse) {
-                if (states[i] != matching) count++;
-                else return count; // stop of first mismatch
-            }
-            else {
-                if (states[i] == matching) count++;
-                else return count; // stop of first mismatch
-            }
-        }
-        return count;
-    }
-    static bool IsAnchored(Row row, int groupMin, int groupMax) {
-        for (int i = groupMin; i <= groupMax; i++) {
-            if (row.initialStates[i] == SpringState.Broken) return true;
-        }
-        return false;
-    }
-
-    void FixInitals(Row row) {
-        // .??..??...?##. 1,1,3
-        List<SpringState> states = new(row.initialStates);
-        List<(int groupMin, int groupMax)> foundGroups = new();
-        int brokenCount = 0;
-        WriteLine("---");
-        Print(GetGroups(row.initialStates), row.brokenGroups);
-
-
-
-        bool didChange = true;
-        while (didChange) {
-            didChange = false;
-            brokenCount = 0;
-            for (int i = 0; i < states.Count && brokenCount < row.brokenGroups.Length; i++) {
-                var thisBrokenCount = row.brokenGroups[brokenCount];
-                var thisState = states[i];
-                // we only care about broken group to fix
-                int backCount = CountMatching(states, i - 1, SpringState.Broken, -1);
-                int foreCount = CountMatching(states, i + 1, SpringState.Broken, 1);
-                if (thisState == SpringState.Broken) {
-                    if ((backCount + foreCount + 1) == thisBrokenCount) {
-                        foundGroups.Add((i - backCount, i + foreCount));
-                        brokenCount++;
-                        i += foreCount; // skip to end of group
-                        continue;
-                    }
-                    // nothing else to do with brokens until we fill the group
-                    continue;
-                }
-                if (thisState == SpringState.Unknown) {
-                    if (foreCount > 0 && foreCount == thisBrokenCount) {
-                        // we're just before the next group
-                        states[i] = IsAnchored(row, i + 1, i + 1 + foreCount) ? SpringState.Operational : SpringState.OpSlide;
-                        didChange = true;
-                        continue;
-                    }
-                    if (backCount > 0 && brokenCount > 0
-                        && backCount == row.brokenGroups[brokenCount - 1]
-                        && foundGroups[brokenCount - 1].groupMax == i - 1) {
-                        // we're just after the next group
-                        states[i] = IsAnchored(row, i - backCount, i - 1) ? SpringState.Operational : SpringState.OpSlide;
-                        didChange = true;
-                        continue;
-                    }
-                    if ((backCount > 0 && foreCount == 0) || (foreCount > 0 && backCount == 0)) {
-                        // extend group to fill need
-                        states[i] = SpringState.Broken; i--;
-                        didChange = true;
-                        continue;
-                    }
-                    if ((foreCount + backCount + 1) <= thisBrokenCount) {
-                        int possibleFore = CountMatching(states, i + 1, SpringState.Operational, 1,inverse: true);
-                        if( (backCount + 1 + possibleFore) >= thisBrokenCount ) {
-                            // bridge group to complete fill
-                            states[i] = SpringState.Broken; i--;
-                            didChange = true;
-                            continue;
-                        }
-                    }
-                }
-                if (thisState == SpringState.OpSlide
-                    && foreCount > 0 && backCount > 0
-                    && (IsAnchored(row, i - backCount, i - 1) || IsAnchored(row, i + 1, i + foreCount))) {
-                    // only if either are anchored
-                    // I'm sandwiched, switch to just a normal operation
-                    states[i] = SpringState.Operational;
-                    // this doesn't count as a change because opslides are opertional
-                    continue;
-                }
-            }
-            Print(GetGroups(states), row.brokenGroups);
-
-        }
-        for(int i = 0; i < states.Count; i++) {
-            if (states[i] == SpringState.Unknown) states[i] = SpringState.OpSlide;
-        }
-
-        int ops = states.Count(s => s == SpringState.OpSlide);
-        WriteLine($"Ops = {ops}");
-
-        row.resolvedStates = states.ToArray();
-    }
-
-
-
-    int RowPermutations(Row row) {
-        // Build up a list of groups that have uncertainty
-        List<List<PermGroup>> unknownGroups = new();
-
-        {
-            List<SpringState> resolvedStates = new(row.resolvedStates);
-
-            for(int i = 0; i < row.initialStates.Length; i++) {
-                if(row.initialStates[i] == SpringState.Unknown) {
-                    int groupStart = i;
-                    List<PermGroup> groups = new();
-                    PermGroup group = null;
-
-                    // Check for empty group before
-                    //if( i == 0 || row.resolvedStates[i - 1] != SpringState.Broken) {
-                    //    groups.Add(group = new() {
-                    //        start = i - 1,
-                    //        type = SpringState.OpSlide,
-                    //        min = 0
-                    //    });
-                    //}
-
-                    for(; i < row.initialStates.Length && row.initialStates[i] == SpringState.Unknown; i++) {
-                        var resolvedType = row.resolvedStates[i];
-                        if (group is null || group.type != resolvedType) {
-                            var oldType = group?.type ?? SpringState.Unknown;
-                            group = new PermGroup {
-                                start = i,
-                                type = resolvedType
-                            };
-                            // Check for anchored broken group, 
-                            if (resolvedType == SpringState.Broken) {
-                                int backGroup = CountMatching(resolvedStates, i - 1, SpringState.Broken, -1);
-                                int foreGroup = CountMatching(resolvedStates, i + 1, SpringState.Broken, 1);
-
-                                if (backGroup + foreGroup > 0) {
-                                    group.anchored = IsAnchored(row, i - backGroup, i + foreGroup);
-                                }
-                            }
-
-                            // group is not anchored so add it to list of slidable groups
-                            groups.Add(group);
-                        }
-                        if ( group.type == resolvedType ) {
-                            group.count++;
-                            switch(resolvedType) {
-                                default: case SpringState.Unknown:
-                                    throw new Exception("Resolved state has unknown");
-                                case SpringState.Broken:
-                                    break;
-                                case SpringState.Operational:
-                                    group.min++;
-                                    group.max++;
-                                    break;
-                                case SpringState.OpSlide:
-                                    group.max++;
-                                    break;
-                            }
-                        }
-                    }
-
-                    // Look for groups OpSlide groups that are surrounded by broken
-                    var blockPrevType = groupStart > 0 ? row.initialStates[i - 1] : SpringState.Unknown;
-                    var blockNextType = i < row.initialStates.Length ? row.initialStates[i] : SpringState.Unknown;
-                    for(int j = 0; j < groups.Count; j++) {
-                        var thisGroup = groups[j];
-                        if( thisGroup.type == SpringState.OpSlide ) {
-                            // determine if this has a min of 1
-                            var prevType = j > 0 ? groups[j - 1].type : blockPrevType;
-                            var nextType = j + 1 < groups.Count ? groups[j + 1].type : blockNextType;
-
-                            if( prevType == SpringState.Broken && nextType == SpringState.Broken ) {
-                                thisGroup.min = Math.Max(1, thisGroup.min);
-                            }
-                        }
-                    }
-
-                    // set the max for all expandables to the highest delta
-                    int highDelta = groups.Max(pg => pg.Delta);
-                    groups.ForEach(pg => {
-                        if (pg.type != SpringState.Broken) pg.max = pg.min + highDelta;
-                    });
-
-                    unknownGroups.Add(groups);
-                    i--; // offset back due to inner loop increment
-                }
-            }
-        }
-
-        int perms = 1;
-        foreach(var groupSet in unknownGroups) {
-            int setPerms = 1;
-            foreach(var group in groupSet) {
-                if (group.type == SpringState.Broken) continue;
-                setPerms += group.Delta;
-            }
-            perms *= setPerms;
-        }
-
-        WriteLine($"{row.raw}\t\t{string.Join(',', row.brokenGroups)}\t\t{perms}");
-        return Math.Max(1, perms);
-    }
-
-
     protected override object SolvePartOneRaw()
     {
-        int perm = 0;
+        return Solve(rows);
+    }
+    protected override object SolvePartTwoRaw() {
+        return Solve(rows2);
+    }
 
-
-        foreach(var row in rows) {
-            int rowperms = 0, ttlBroken = row.brokenGroups.Sum();
-            Queue<(int i, List<SpringState> state, int broken, int unknown)> forks = new();
-            forks.Enqueue((0, new(row.initialStates), row.initialStates.Count(st => st == SpringState.Broken), row.initialStates.Count(st => st == SpringState.Unknown)));
-
-            while(forks.Count > 0) {
-                var (i, state, broken, unknown) = forks.Dequeue();
-
-                // skip set state
-                for (; i < state.Count && state[i] != SpringState.Unknown; i++);
-                if (i >= state.Count) {
-                    var groups = GetGroups(state);
-                    Print(groups, row.brokenGroups);
-                    var permBrokens = GetBrokens(groups);
-                    if (row.brokenGroups.SequenceEqual(permBrokens))
-                        rowperms++;
+    static (bool result, int atSampleIndex, int atGuideIndex) WithinAlignment(List<GroupState> sample, int fromSampleIndex, int[] guide, int guideIndex) {
+        guideIndex = Math.Max(0, guideIndex);
+        for (int i = Math.Max(0, fromSampleIndex); i < sample.Count && guideIndex < guide.Length; i++) {
+            if (sample[i].state == SpringState.Broken) {
+                if (sample[i].count < guide[guideIndex]) {
+                    return (i + 1 < sample.Count && sample[i + 1].state == SpringState.Unknown, i, guideIndex);
                 }
-                else {// assume we're at a broken, since we didn't walk off the end
-                    List<SpringState> stateCopy = new(state);
-                    // Queue as operational
-                    if( broken + unknown - 1 >= ttlBroken ) { // if selecting operational doesn't allow completion, don't walk that path
-                        state[i] = SpringState.Operational;
-                        if( OutputAlways) Print(GetGroups(state), row.brokenGroups, 4);
-                        forks.Enqueue((i + 1, state, broken, unknown - 1));
-                    }
-                    // Queue as broken
-                    if( broken + 1 <= ttlBroken ) { // if selecting broken here causes too many brokens don't walk that path
-                        stateCopy[i] = SpringState.Broken;
-                        if (OutputAlways) Print(GetGroups(stateCopy), row.brokenGroups, 4);
-                        forks.Enqueue((i + 1, stateCopy, broken + 1, unknown - 1));
-                    }
-                }
+                else if (sample[i].count == guide[guideIndex])
+                    guideIndex++;
+                else return (false, i, guideIndex); // exceeded guide count
             }
-            
-            WriteLine($"rowperms: {rowperms}");
+            // don't limit based on groups at or after unknowns
+            else if (sample[i].state == SpringState.Unknown) return (true, i, guideIndex);
+        }
+        return (true, sample.Count - 1, guideIndex);
+    }
+    static SpringState[] CloneState(SpringState[] fromState) {
+        SpringState[] newState = new SpringState[fromState.Length];
+        Array.Copy(fromState, newState, fromState.Length);
+        return newState;
+    }
+
+    class SolveIteration {
+        public int i;
+        public SpringState[] state;
+        public int broken;
+        public int unknown;
+        public List<GroupState> groups;
+        public int atGroupIndex;
+        public int atGuideIndex;
+
+        public SolveIteration(int i, SpringState[] state, int broken, int unknown, List<GroupState> groups, int atGroupIndex, int atGuideIndex)
+        {
+            this.i = i;
+            this.state = state;
+            this.broken = broken;
+            this.unknown = unknown;
+            this.groups = groups;
+            this.atGroupIndex = atGroupIndex;
+            this.atGuideIndex = atGuideIndex;
+        }
+    }
+
+    static bool GroupStateEquals(GroupState lhs, GroupState rhs) {
+        return lhs.state == rhs.state && lhs.count == rhs.count && lhs.atIndex == rhs.atIndex;
+    }
+    object Solve(List<Row> myRows)
+    {
+        WriteLine("Start Solve...");
+       ulong perm = 0;
+
+
+        foreach (var row in myRows) {
+            Stopwatch sw = new(), rowTotal = new();
+            rowTotal.Start();
+            long maxIterTicks = 0;
+            ulong rowperms = 0;
+            int ttlBroken = row.brokenGroups.Sum(), maxQueue = 0, length = row.initialStates.Length;
+            long iterations = 0;
+            LinkedList<SolveIteration> forks = new();
+            forks.AddLast(
+                new SolveIteration(
+                    i: 0,
+                    state: CloneState(row.initialStates),
+                    broken: row.initialStates.Count(st => st == SpringState.Broken),
+                    unknown: row.initialStates.Count(st => st == SpringState.Unknown),
+                    groups: GetGroups(row.initialStates, null, 0),
+                    atGroupIndex: 0,
+                    atGuideIndex: 0
+                )
+            );
+
+            while (forks.Count > 0) {
+                sw.Restart();
+                iterations++; maxQueue = Math.Max(forks.Count, maxQueue);
+
+                var iterStateNode = forks.First;
+                var iter = iterStateNode.Value;
+                forks.RemoveFirst();
+                //if (OutputAlways && printed != forks.Count) {
+                //    WriteLine($"{i,3}/{length,3} -- {forks.Count,3}");
+                //    printed = forks.Count;
+                //}
+
+                if (iter.atGuideIndex == row.brokenGroups.Length) {
+                    rowperms++;
+                }
+                else {
+                    // skip set state
+                    for (; iter.i < length && iter.state[iter.i] != SpringState.Unknown; iter.i++) ;
+                    if (iter.i < length) {// assume we're at a broken, since we didn't walk off the end
+                        bool queueOps = iter.broken + iter.unknown - 1 >= ttlBroken;
+                        bool queueBroken = iter.broken + 1 <= ttlBroken;
+                        // Queue as operational
+                        if (queueOps) { // if selecting operational doesn't allow completion, don't walk that path
+                            SpringState[] stateCopy = queueBroken ? CloneState(iter.state) : iter.state; // don't copy when not double queuing
+                            stateCopy[iter.i] = SpringState.Operational;
+                            var groups = GetGroups(stateCopy, iter.groups, iter.atGroupIndex);
+                            if (!GroupStateEquals(groups[Math.Max(0, iter.atGroupIndex - 1)], iter.groups[Math.Max(0, iter.atGroupIndex - 1)])) {
+                                iter.atGroupIndex = 0; iter.atGuideIndex = 0;
+                            }
+                            var (alignment, atSampleIndex, atGuideIndex) = WithinAlignment(groups, iter.atGroupIndex, row.brokenGroups, iter.atGuideIndex);
+                            //if (OutputAlways) Print(groups, row.brokenGroups, 4, alignment);
+                            if (alignment) { // only explore if this pathway is a viable match
+                                forks.AddFirst(
+                                    new SolveIteration(
+                                        i: iter.i + 1,
+                                        state: stateCopy,
+                                        broken: iter.broken,
+                                        unknown: iter.unknown - 1,
+                                        groups: groups,
+                                        atGroupIndex: atSampleIndex,
+                                        atGuideIndex: atGuideIndex
+                                    )
+                                );
+                            }
+
+                        }
+                        // Queue as broken
+                        if (queueBroken) { // if selecting broken here causes too many brokens don't walk that path
+                            iter.state[iter.i] = SpringState.Broken;
+                            var groups = GetGroups(iter.state, iter.groups, iter.atGroupIndex);
+                            if (!GroupStateEquals(groups[Math.Max(0, iter.atGroupIndex - 1)], iter.groups[Math.Max(0, iter.atGroupIndex - 1)])) {
+                                iter.atGroupIndex = 0; iter.atGuideIndex = 0;
+                            }
+                            var (alignment, atSampleIndex, atGuideIndex) = WithinAlignment(groups, iter.atGroupIndex, row.brokenGroups, iter.atGuideIndex);
+                            //if (OutputAlways) Print(groups, row.brokenGroups, 4, alignment);
+                            if (alignment) { // only explore if this pathway is a viable match
+                                forks.AddFirst(new SolveIteration(
+                                        i: iter.i + 1,
+                                        state: iter.state,
+                                        broken: iter.broken + 1,
+                                        unknown: iter.unknown - 1,
+                                        groups: groups,
+                                        atGroupIndex: atSampleIndex,
+                                        atGuideIndex: atGuideIndex
+                                    )
+                                );
+                            }
+                        }
+                    }
+                }
+
+                maxIterTicks = Math.Max(sw.ElapsedTicks, maxIterTicks);
+            }
+
+            WriteLine($"rowperms: {rowperms} --- iterations {iterations} -- maxQueue {maxQueue} -- maxIterTicks {maxIterTicks} --- {rowTotal.Elapsed}");
             perm += rowperms;
         }
 
 
         return perm;//rows.Sum(RowPermutations);
-    }
-
-    protected override object SolvePartTwoRaw()
-    {
-        return null;
     }
 }
