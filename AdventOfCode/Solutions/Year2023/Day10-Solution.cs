@@ -13,7 +13,6 @@ class Day10 : ASolution
 {
     class PipeSegment {
         public CompassDirection[] ExitDirs;
-        public CompassDirection[] SideDirs;
         public Int2[] Exits = new Int2[2];
         public Int2 Position = Int2.Zero;
         public PipeSegment[] PipeExits = new PipeSegment[2];

@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace AdventOfCode.Solutions.Year2023;
 
-[DayInfo(2023, 11, "")]
+[DayInfo(2023, 11, "Cosmic Expansion")]
 class Day11 : ASolution
 {
 
