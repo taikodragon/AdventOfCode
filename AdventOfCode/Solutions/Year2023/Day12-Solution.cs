@@ -2,6 +2,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Text;
 using Windows.Devices.Input.Preview;
 using static AdventOfCode.Solutions.Year2023.Day12;
@@ -14,7 +15,7 @@ class Day12 : ASolution
 {
     public Day12() : base(false)
     {
-        OutputAlways = true;
+        //OutputAlways = true;
     }
 
     public enum SpringState {
@@ -40,15 +41,25 @@ class Day12 : ASolution
             _ => throw new Exception("Unknown state value: " + state)
         };
     }
-    void Print(List<GroupState> groups, int[] brokens) {
+    void Print(List<GroupState> groups, int[] brokens, int indent = 0) {
+        if (!OutputAlways) return;
+
         StringBuilder sb = new();
+        for(int i = 0; i < indent; i++) {
+            sb.Append('~');
+        }
+
         foreach(var group in groups) {
             char c = StringFromState(group.state);
             for (int i = group.count; i > 0; i--) {
                 sb.Append(c);
             }
         }
-        if( brokens is not null) {
+
+        sb.Append("   ");
+        sb.Append(string.Join(',', GetBrokens(groups)));
+
+        if ( brokens is not null) {
             sb.Append("   ");
             sb.Append(string.Join(',', brokens));
         }
@@ -81,7 +92,7 @@ class Day12 : ASolution
                 brokenGroups = p[1..].Select(int.Parse).ToArray(),
             })
             .ToList();
-        rows.ForEach(FixInitals);
+        //rows.ForEach(FixInitals);
     }
 
 
@@ -323,7 +334,49 @@ class Day12 : ASolution
 
     protected override object SolvePartOneRaw()
     {
-        return rows.Sum(RowPermutations);
+        int perm = 0;
+
+
+        foreach(var row in rows) {
+            int rowperms = 0, ttlBroken = row.brokenGroups.Sum();
+            Queue<(int i, List<SpringState> state, int broken, int unknown)> forks = new();
+            forks.Enqueue((0, new(row.initialStates), row.initialStates.Count(st => st == SpringState.Broken), row.initialStates.Count(st => st == SpringState.Unknown)));
+
+            while(forks.Count > 0) {
+                var (i, state, broken, unknown) = forks.Dequeue();
+
+                // skip set state
+                for (; i < state.Count && state[i] != SpringState.Unknown; i++);
+                if (i >= state.Count) {
+                    var groups = GetGroups(state);
+                    Print(groups, row.brokenGroups);
+                    var permBrokens = GetBrokens(groups);
+                    if (row.brokenGroups.SequenceEqual(permBrokens))
+                        rowperms++;
+                }
+                else {// assume we're at a broken, since we didn't walk off the end
+                    List<SpringState> stateCopy = new(state);
+                    // Queue as operational
+                    if( broken + unknown - 1 >= ttlBroken ) { // if selecting operational doesn't allow completion, don't walk that path
+                        state[i] = SpringState.Operational;
+                        if( OutputAlways) Print(GetGroups(state), row.brokenGroups, 4);
+                        forks.Enqueue((i + 1, state, broken, unknown - 1));
+                    }
+                    // Queue as broken
+                    if( broken + 1 <= ttlBroken ) { // if selecting broken here causes too many brokens don't walk that path
+                        stateCopy[i] = SpringState.Broken;
+                        if (OutputAlways) Print(GetGroups(stateCopy), row.brokenGroups, 4);
+                        forks.Enqueue((i + 1, stateCopy, broken + 1, unknown - 1));
+                    }
+                }
+            }
+            
+            WriteLine($"rowperms: {rowperms}");
+            perm += rowperms;
+        }
+
+
+        return perm;//rows.Sum(RowPermutations);
     }
 
     protected override object SolvePartTwoRaw()
