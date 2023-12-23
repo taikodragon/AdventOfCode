@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Security;
 using System.Text;
 
@@ -112,6 +113,7 @@ class Day12 : ASolution
                 brokenGroups = p[1..].Select(int.Parse).ToArray(),
             })
             .ToList();
+
         rows2 = Input.SplitByNewline(false, true)
             .Select(l => l.Split(' '))
             .Select(p => new Row {
@@ -120,6 +122,7 @@ class Day12 : ASolution
                 brokenGroups = string.Join(',', p[1], p[1], p[1], p[1], p[1]).Split(',').Select(int.Parse).ToArray(),
             })
             .ToList();
+
     }
 
 
@@ -159,6 +162,13 @@ class Day12 : ASolution
     }
     static int[] GetBrokens(List<GroupState> groups) {
         return groups.Where(g => g.state == SpringState.Broken).Select(g => g.count).ToArray();
+    }
+
+    static bool IsAnchored(Row row, int groupMin, int groupMax) {
+        for (int i = groupMin; i <= groupMax; i++) {
+            if (row.initialStates[i] == SpringState.Broken) return true;
+        }
+        return false;
     }
 
     protected override object SolvePartOneRaw()
@@ -215,6 +225,130 @@ class Day12 : ASolution
     static bool GroupStateEquals(GroupState lhs, GroupState rhs) {
         return lhs.state == rhs.state && lhs.count == rhs.count && lhs.atIndex == rhs.atIndex;
     }
+
+
+    bool TrySetAnchored(Row row, SolveIteration iter) {
+        if (row.resolvedStates is not null) return false;
+
+        // write the anchored groups into the initial mapping
+        row.resolvedStates = CloneState(row.initialStates);
+
+
+        // Get the list of anchored groups and write to the resolved state
+        foreach (var grp in GetGroups(iter.state, null, 0).Where(grp => grp.state == SpringState.Broken && IsAnchored(row, grp.atIndex, grp.atIndex + grp.count - 1))) {
+            for (int i = grp.atIndex, max = grp.atIndex + grp.count; i < max; i++)
+                row.resolvedStates[i] = SpringState.Broken;
+        }
+
+        WriteLine("Ressolved Anchored Groups");
+        Print(GetGroups(row.initialStates, null, 0), row.brokenGroups, 4);
+        Print(GetGroups(row.resolvedStates, null, 0), row.brokenGroups, 4);
+
+        return true;
+    }
+
+    ulong SolveRow(Row row) {
+        Stopwatch sw = new(), rowTotal = new();
+        rowTotal.Start();
+        long maxIterTicks = 0;
+        ulong rowperms = 0;
+        var rowInitialStates = row.resolvedStates ?? row.initialStates;
+        int ttlBroken = row.brokenGroups.Sum(), maxQueue = 0, length = rowInitialStates.Length;
+        long iterations = 0;
+        LinkedList<SolveIteration> forks = new();
+        forks.AddLast(
+            new SolveIteration(
+                i: 0,
+                state: CloneState(rowInitialStates),
+                broken: rowInitialStates.Count(st => st == SpringState.Broken),
+                unknown: rowInitialStates.Count(st => st == SpringState.Unknown),
+                groups: GetGroups(rowInitialStates, null, 0),
+                atGroupIndex: 0,
+                atGuideIndex: 0
+            )
+        );
+
+        while (forks.Count > 0) {
+            sw.Restart();
+            iterations++; maxQueue = Math.Max(forks.Count, maxQueue);
+
+            var iterStateNode = forks.First;
+            var iter = iterStateNode.Value;
+            forks.RemoveFirst();
+            //if (OutputAlways && printed != forks.Count) {
+            //    WriteLine($"{i,3}/{length,3} -- {forks.Count,3}");
+            //    printed = forks.Count;
+            //}
+
+            if (iter.atGuideIndex == row.brokenGroups.Length) {
+                if (rowperms == 0) {
+                    bool didSet = TrySetAnchored(row, iter);
+                    if (didSet) return SolveRow(row); // start over
+                }
+                rowperms++;
+            }
+            else {
+                // skip set state
+                for (; iter.i < length && iter.state[iter.i] != SpringState.Unknown; iter.i++) ;
+                if (iter.i < length) {// assume we're at a broken, since we didn't walk off the end
+                    bool queueOps = iter.broken + iter.unknown - 1 >= ttlBroken;
+                    bool queueBroken = iter.broken + 1 <= ttlBroken;
+                    // Queue as operational
+                    if (queueOps) { // if selecting operational doesn't allow completion, don't walk that path
+                        SpringState[] stateCopy = queueBroken ? CloneState(iter.state) : iter.state; // don't copy when not double queuing
+                        stateCopy[iter.i] = SpringState.Operational;
+                        var groups = GetGroups(stateCopy, iter.groups, iter.atGroupIndex);
+                        if (!GroupStateEquals(groups[Math.Max(0, iter.atGroupIndex - 1)], iter.groups[Math.Max(0, iter.atGroupIndex - 1)])) {
+                            iter.atGroupIndex = 0; iter.atGuideIndex = 0;
+                        }
+                        var (alignment, atSampleIndex, atGuideIndex) = WithinAlignment(groups, iter.atGroupIndex, row.brokenGroups, iter.atGuideIndex);
+                        //if (OutputAlways) Print(groups, row.brokenGroups, 4, alignment);
+                        if (alignment) { // only explore if this pathway is a viable match
+                            forks.AddFirst(
+                                new SolveIteration(
+                                    i: iter.i + 1,
+                                    state: stateCopy,
+                                    broken: iter.broken,
+                                    unknown: iter.unknown - 1,
+                                    groups: groups,
+                                    atGroupIndex: atSampleIndex,
+                                    atGuideIndex: atGuideIndex
+                                )
+                            );
+                        }
+
+                    }
+                    // Queue as broken
+                    if (queueBroken) { // if selecting broken here causes too many brokens don't walk that path
+                        iter.state[iter.i] = SpringState.Broken;
+                        var groups = GetGroups(iter.state, iter.groups, iter.atGroupIndex);
+                        if (!GroupStateEquals(groups[Math.Max(0, iter.atGroupIndex - 1)], iter.groups[Math.Max(0, iter.atGroupIndex - 1)])) {
+                            iter.atGroupIndex = 0; iter.atGuideIndex = 0;
+                        }
+                        var (alignment, atSampleIndex, atGuideIndex) = WithinAlignment(groups, iter.atGroupIndex, row.brokenGroups, iter.atGuideIndex);
+                        //if (OutputAlways) Print(groups, row.brokenGroups, 4, alignment);
+                        if (alignment) { // only explore if this pathway is a viable match
+                            forks.AddFirst(new SolveIteration(
+                                    i: iter.i + 1,
+                                    state: iter.state,
+                                    broken: iter.broken + 1,
+                                    unknown: iter.unknown - 1,
+                                    groups: groups,
+                                    atGroupIndex: atSampleIndex,
+                                    atGuideIndex: atGuideIndex
+                                )
+                            );
+                        }
+                    }
+                }
+            }
+
+            maxIterTicks = Math.Max(sw.ElapsedTicks, maxIterTicks);
+        }
+
+        WriteLine($"rowperms: {rowperms} --- iterations {iterations} -- maxQueue {maxQueue} -- maxIterTicks {maxIterTicks} --- {rowTotal.Elapsed}");
+        return rowperms;
+    }
     object Solve(List<Row> myRows)
     {
         WriteLine("Start Solve...");
@@ -222,104 +356,10 @@ class Day12 : ASolution
 
 
         foreach (var row in myRows) {
-            Stopwatch sw = new(), rowTotal = new();
-            rowTotal.Start();
-            long maxIterTicks = 0;
-            ulong rowperms = 0;
-            int ttlBroken = row.brokenGroups.Sum(), maxQueue = 0, length = row.initialStates.Length;
-            long iterations = 0;
-            LinkedList<SolveIteration> forks = new();
-            forks.AddLast(
-                new SolveIteration(
-                    i: 0,
-                    state: CloneState(row.initialStates),
-                    broken: row.initialStates.Count(st => st == SpringState.Broken),
-                    unknown: row.initialStates.Count(st => st == SpringState.Unknown),
-                    groups: GetGroups(row.initialStates, null, 0),
-                    atGroupIndex: 0,
-                    atGuideIndex: 0
-                )
-            );
-
-            while (forks.Count > 0) {
-                sw.Restart();
-                iterations++; maxQueue = Math.Max(forks.Count, maxQueue);
-
-                var iterStateNode = forks.First;
-                var iter = iterStateNode.Value;
-                forks.RemoveFirst();
-                //if (OutputAlways && printed != forks.Count) {
-                //    WriteLine($"{i,3}/{length,3} -- {forks.Count,3}");
-                //    printed = forks.Count;
-                //}
-
-                if (iter.atGuideIndex == row.brokenGroups.Length) {
-                    rowperms++;
-                }
-                else {
-                    // skip set state
-                    for (; iter.i < length && iter.state[iter.i] != SpringState.Unknown; iter.i++) ;
-                    if (iter.i < length) {// assume we're at a broken, since we didn't walk off the end
-                        bool queueOps = iter.broken + iter.unknown - 1 >= ttlBroken;
-                        bool queueBroken = iter.broken + 1 <= ttlBroken;
-                        // Queue as operational
-                        if (queueOps) { // if selecting operational doesn't allow completion, don't walk that path
-                            SpringState[] stateCopy = queueBroken ? CloneState(iter.state) : iter.state; // don't copy when not double queuing
-                            stateCopy[iter.i] = SpringState.Operational;
-                            var groups = GetGroups(stateCopy, iter.groups, iter.atGroupIndex);
-                            if (!GroupStateEquals(groups[Math.Max(0, iter.atGroupIndex - 1)], iter.groups[Math.Max(0, iter.atGroupIndex - 1)])) {
-                                iter.atGroupIndex = 0; iter.atGuideIndex = 0;
-                            }
-                            var (alignment, atSampleIndex, atGuideIndex) = WithinAlignment(groups, iter.atGroupIndex, row.brokenGroups, iter.atGuideIndex);
-                            //if (OutputAlways) Print(groups, row.brokenGroups, 4, alignment);
-                            if (alignment) { // only explore if this pathway is a viable match
-                                forks.AddFirst(
-                                    new SolveIteration(
-                                        i: iter.i + 1,
-                                        state: stateCopy,
-                                        broken: iter.broken,
-                                        unknown: iter.unknown - 1,
-                                        groups: groups,
-                                        atGroupIndex: atSampleIndex,
-                                        atGuideIndex: atGuideIndex
-                                    )
-                                );
-                            }
-
-                        }
-                        // Queue as broken
-                        if (queueBroken) { // if selecting broken here causes too many brokens don't walk that path
-                            iter.state[iter.i] = SpringState.Broken;
-                            var groups = GetGroups(iter.state, iter.groups, iter.atGroupIndex);
-                            if (!GroupStateEquals(groups[Math.Max(0, iter.atGroupIndex - 1)], iter.groups[Math.Max(0, iter.atGroupIndex - 1)])) {
-                                iter.atGroupIndex = 0; iter.atGuideIndex = 0;
-                            }
-                            var (alignment, atSampleIndex, atGuideIndex) = WithinAlignment(groups, iter.atGroupIndex, row.brokenGroups, iter.atGuideIndex);
-                            //if (OutputAlways) Print(groups, row.brokenGroups, 4, alignment);
-                            if (alignment) { // only explore if this pathway is a viable match
-                                forks.AddFirst(new SolveIteration(
-                                        i: iter.i + 1,
-                                        state: iter.state,
-                                        broken: iter.broken + 1,
-                                        unknown: iter.unknown - 1,
-                                        groups: groups,
-                                        atGroupIndex: atSampleIndex,
-                                        atGuideIndex: atGuideIndex
-                                    )
-                                );
-                            }
-                        }
-                    }
-                }
-
-                maxIterTicks = Math.Max(sw.ElapsedTicks, maxIterTicks);
-            }
-
-            WriteLine($"rowperms: {rowperms} --- iterations {iterations} -- maxQueue {maxQueue} -- maxIterTicks {maxIterTicks} --- {rowTotal.Elapsed}");
-            perm += rowperms;
+            perm += SolveRow(row);
         }
 
 
-        return perm;//rows.Sum(RowPermutations);
+        return perm;
     }
 }
