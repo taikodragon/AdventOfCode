@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Bson;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -40,36 +41,6 @@ class Day12 : ASolution
             _ => throw new Exception("Unknown state value: " + state)
         };
     }
-    void Print(List<GroupState> groups, int[] brokens, int indent = 0, bool? isAligned = null) {
-        if (!OutputAlways) return;
-
-        StringBuilder sb = new();
-        for(int i = 0; i < indent; i++) {
-            sb.Append('~');
-        }
-
-        foreach(var group in groups) {
-            char c = StringFromState(group.state);
-            for (int i = group.count; i > 0; i--) {
-                sb.Append(c);
-            }
-        }
-
-        sb.Append("   ");
-        sb.Append(string.Join(',', GetBrokens(groups)));
-
-        if ( brokens is not null) {
-            sb.Append("   ");
-            sb.Append(string.Join(',', brokens));
-        }
-
-        if( isAligned != null ) {
-            sb.Append("   ");
-            sb.Append(isAligned.ToString());
-        }
-
-        WriteLine(sb);
-    }
 
     class GroupState {
         public int atIndex;
@@ -86,12 +57,6 @@ class Day12 : ASolution
         public override string ToString() {
             return $"{nameof(GroupState)}:{state} @{atIndex}--{count}";
         }
-    }
-    class PermGroup {
-        public SpringState type;
-        public int start, min, max, count;
-        public bool anchored;
-        public int Delta => max - min;
     }
 
     class Row {
@@ -160,16 +125,13 @@ class Day12 : ASolution
         }
         return groups;
     }
-    static int[] GetBrokens(List<GroupState> groups) {
-        return groups.Where(g => g.state == SpringState.Broken).Select(g => g.count).ToArray();
-    }
 
     protected override object SolvePartOneRaw()
     {
         return Solve(rows);
     }
     protected override object SolvePartTwoRaw() {
-        return Solve(rows2);
+        //return Solve(rows2);
         return null;
     }
 
@@ -196,84 +158,133 @@ class Day12 : ASolution
     }
 
     class SolveIteration {
-        public int i;
+        public readonly int forkedAt, broken, unknown, atGuideIndex, atGroupIndex;
         public SpringState[] state;
-        public int broken;
-        public int unknown;
         public List<GroupState> groups;
-        public int atGroupIndex;
-        public int atGuideIndex;
 
-        public List<SolveIteration> children = new(2);
-        public SolveIteration parent = null;
-        public ulong rowPermutations;
-        public SpringState MyState => i < 1 ? SpringState.OpSlide : state[i - 1];
-        public int leftCount;
+        public readonly SolveIteration parent = null;
 
-        public SolveIteration(int i, SpringState[] state, int broken, int unknown, List<GroupState> groups, int atGroupIndex, int atGuideIndex, SolveIteration parent)
+        private List<SolveIteration> children = new(2);
+        private readonly int myGroupIndex;
+        private ulong _rowPermutations;
+        public ulong RowPermutations => _rowPermutations;
+        public SpringState MyType => forkedAt >= 0 ? state[forkedAt] : SpringState.Unknown;
+        public bool cacheEnabled = true;
+        public List<SolveIteration> printChildren;
+        public bool IsSolved { get; private set; }
+
+        public SolveIteration(int forkedAt, SpringState[] state, int broken, int unknown, List<GroupState> groups, int atGroupIndex, int atGuideIndex, SolveIteration parent)
         {
-            this.i = i;
+            this.forkedAt = forkedAt;
             this.state = state;
             this.broken = broken;
             this.unknown = unknown;
             this.groups = groups;
             this.atGroupIndex = atGroupIndex;
             this.atGuideIndex = atGuideIndex;
-            this.leftCount = CountLeft();
             this.parent = parent;
-            if( parent is not null )
+            if (parent is not null) {
                 parent.children.Add(this);
-
-        }
-        int CountLeft() {
-            var myState = MyState;
-            int count = 0;
-            for (int i = this.i - 1; i > -1 && i < state.Length; i--) {
-                if (state[i] == myState) count++;
-                else return count; // stop of first mismatch
+                cacheEnabled = parent.cacheEnabled;
+                if( parent.printChildren is not null ) {
+                    parent.printChildren.Add(this);
+                    printChildren = new(2);
+                }
             }
-            return count;
+
+            myGroupIndex = groups.FindIndex(Math.Max(0, parent?.myGroupIndex ?? 0), gs => gs.atIndex <= forkedAt && (gs.atIndex + gs.count) > forkedAt);
+            
         }
 
+        public (int forkedAt, int nthGroup, SpringState groupType, int nthGroupSize, int atGuideIndex) GetCacheKey() {
+            if( forkedAt < 0 ) {
+                return (forkedAt, myGroupIndex, SpringState.Unknown, 0, 0);
+            }
+            return (forkedAt, myGroupIndex, groups[myGroupIndex].state, groups[myGroupIndex].count, atGuideIndex);
+        }
+
+        public void Solved(ulong rowPermutations, bool fromCache, Dictionary<(int,int,SpringState,int,int), (ulong,SolveIteration)> cache) {
+            if (IsSolved) throw new InvalidOperationException("Row already has been solved.");
+
+            _rowPermutations += rowPermutations;
+            IsSolved = true;
+
+            if( cacheEnabled && !fromCache ) {
+                var key = GetCacheKey();
+                if (cache.TryGetValue(key, out var value)) {
+                    if (value.Item2 != this) {
+                        Debugger.Break();
+                        throw new Exception("Duplucate cache entry!");
+                    }
+                }
+                else cache.Add(key, (_rowPermutations, this));
+            }
+
+            parent?.SolvedChild(this, fromCache, cache);
+        }
+        private void SolvedChild(SolveIteration child, bool fromCache, Dictionary<(int, int, SpringState, int, int), (ulong, SolveIteration)> cache) {
+            if (!children.Remove(child)) throw new Exception("Unknown caller to SolvedChild"); // remove reference to prune memory usage
+            // accumulate child arrangements
+            _rowPermutations += child._rowPermutations;
+
+            if( children.Count == 0 ) {
+                if (cacheEnabled) {
+                    var key = GetCacheKey();
+                    if (cache.TryGetValue(key, out var value)) {
+                        if (value.Item2 != this) {
+                            Debugger.Break();
+                            throw new Exception("Duplucate cache entry!");
+                        }
+                    }
+                    else cache.Add(key, (_rowPermutations, this));
+                }
+
+                IsSolved = true;
+                parent?.SolvedChild(this, fromCache, cache);
+            }
+
+        }
     }
 
     static bool GroupStateEquals(GroupState lhs, GroupState rhs) {
         return lhs.state == rhs.state && lhs.count == rhs.count && lhs.atIndex == rhs.atIndex;
     }
 
-    string PrintIterTree(SolveIteration iter, int depth = 0) {
-        StringBuilder sb = new(2000);
+    string PrintIterTree(SolveIteration iter, int depth = 0, StringBuilder builder = null) {
+        StringBuilder sb = builder ?? new(16 * 1024);
 
         // Print self
         sb.Append('|', depth)
             .Append('>')
             .Append(iter.state.Select(StringFromState).ToArray())
-            .AppendLine($" -- @{iter.i,3} RP{iter.rowPermutations,5}")
-            .Append('|', depth)
-            .Append(' ', Math.Max(0, iter.i + 1))
+            .AppendLine($" -- @{iter.forkedAt,3} RP{iter.RowPermutations,5} Solved {iter.IsSolved}")
+            .Append('|', depth + 1)
+            .Append(' ', Math.Max(0, iter.forkedAt))
             .AppendLine("^");
-        
-        foreach(var child in iter.children) {
-            sb.Append(PrintIterTree(child, depth + 1));
+
+        foreach (var child in iter.printChildren) {
+            _ = PrintIterTree(child, depth + 1, sb);
         }
-        return sb.ToString();
+        return builder is null ? sb.ToString() : string.Empty;
     }
 
     ulong SolveRow(Row row, bool enableCaching, bool printTree) {
         Stopwatch sw = new(), rowTotal = new();
         rowTotal.Start();
-        long maxIterTicks = 0;
+
+        TimeSpan maxIterTime = TimeSpan.Zero;
         ulong rowperms = 0, cacheHits = 0;
 
         var rowInitialStates = row.resolvedStates ?? row.initialStates;
         int ttlBroken = row.brokenGroups.Sum(), maxQueue = 0, length = rowInitialStates.Length;
         long iterations = 0;
 
-        Dictionary<(int atIndex, int guideIndex, SpringState atState, int leftCount, int atGroupIndex), (ulong permutations, SolveIteration fromIter)> permutationCache = new();
+        Dictionary<(int forkedAt, int nthGroup, SpringState groupType, int nthGroupSize, int atGuideIndex), (ulong permutations, SolveIteration fromIter)> permutationCache = new();
         LinkedList<SolveIteration> forks = new();
+        SolveIteration root;
         forks.AddLast(
-            new SolveIteration(
-                i: 0,
+            root = new SolveIteration(
+                forkedAt: -1,
                 state: CloneState(rowInitialStates),
                 broken: rowInitialStates.Count(st => st == SpringState.Broken),
                 unknown: rowInitialStates.Count(st => st == SpringState.Unknown),
@@ -281,8 +292,27 @@ class Day12 : ASolution
                 atGroupIndex: 0,
                 atGuideIndex: 0,
                 parent: null
-            )
+            ) {
+                cacheEnabled = enableCaching,
+                printChildren = printTree ? new(2) : null
+            }
         );
+
+        void QueueFork(SolveIteration siter) {
+            if (siter is not null) {
+                var key = siter.GetCacheKey();
+                if (enableCaching && permutationCache.TryGetValue(key, out var cachedRowPerms)) {
+                    siter.Solved(cachedRowPerms.permutations, true, permutationCache);
+                    cacheHits++;
+                }
+                else if (siter.atGuideIndex == row.brokenGroups.Length) { // this row is solved
+                    siter.Solved(1, false, permutationCache);
+                }
+                else {
+                    forks.AddFirst(siter);
+                }
+            }
+        }
 
         while (forks.Count > 0) {
             sw.Restart();
@@ -292,133 +322,86 @@ class Day12 : ASolution
             var iter = iterStateNode.Value;
             forks.RemoveFirst();
 
-
             if (iter.atGuideIndex == row.brokenGroups.Length) {
-                iter.rowPermutations++;
-
-                if(enableCaching) {
-                    var key = (iter.i - 1, iter.atGuideIndex, iter.state[iter.i - 1], iter.leftCount, iter.atGroupIndex);
-                    if (permutationCache.ContainsKey(key)) {
-                        var value = permutationCache[key];
-                        if (value.permutations != iter.rowPermutations)
-                            WriteLine($"At duplicate leaf to cache entry: {value} for key {key} -- my value {iter.rowPermutations}");
-                        permutationCache[key] = (iter.rowPermutations, iter);
-                    }
-                    else permutationCache.Add(key, (iter.rowPermutations, iter));
-                }
-            }
-            else if (iter.children.Count > 0) {
-                foreach(var child in iter.children) {
-                    iter.rowPermutations += child.rowPermutations;
-                }
-                if (!printTree) iter.children.Clear();
-
-                if (iter.parent is null) {
-                    rowperms += iter.rowPermutations;
-                    // print the tree
-                    if( printTree ) WriteLine(PrintIterTree(iter));
-                }
-                else if (enableCaching) {
-                    var key = (iter.i, iter.atGuideIndex, iter.state[iter.i], iter.leftCount, iter.atGroupIndex);
-                    if (permutationCache.ContainsKey(key)) {
-                        var value = permutationCache[key];
-                        if (value.permutations != iter.rowPermutations)
-                            WriteLine($"Computed duplicate to cache entry: {value} for key {key} -- my value {iter.rowPermutations}");
-                        permutationCache[key] = (iter.rowPermutations, iter);
-                    }
-                    else {
-                        // remove entries below because they aren't relavant to other paths
-                        //List<(int, int, SpringState, int, int)> evictions = new(permutationCache.Count);
-                        //evictions.AddRange(permutationCache.Keys.Where(k => k.atIndex > iter.i));
-                        //foreach (var k in evictions) permutationCache.Remove(k);
-
-                        permutationCache.Add(key, (iter.rowPermutations, iter));
-                    }
-                }
+                iter.Solved(1, false, permutationCache);
 
             }
             else {
-                int iterStart = iter.i - 1;
+                int iterAt = iter.forkedAt + 1;
                 // skip set state
-                for (; iter.i < length && iter.state[iter.i] != SpringState.Unknown; iter.i++) ;
+                for (; iterAt < length && iter.state[iterAt] != SpringState.Unknown; iterAt++) ;
 
-                if (iter.i < length) {// assume we're at a unknown, since we didn't walk off the end
-                    bool queueOps = iter.broken + iter.unknown - 1 >= ttlBroken;
-                    bool queueBroken = iter.broken + 1 <= ttlBroken;
-
+                if (iterAt < length) {// assume we're at a unknown, since we didn't walk off the end
                     SolveIteration opsIter = null, brokenIter = null;
                     // Queue as operational
-                    if (queueOps) { // if selecting operational doesn't allow completion, don't walk that path
-                        SpringState[] stateCopy = CloneState(iter.state);
-                        stateCopy[iter.i] = SpringState.Operational;
-                        var groups = GetGroups(stateCopy, iter.groups, iter.atGroupIndex);
+                    SpringState[] stateCopy = CloneState(iter.state);
+                    stateCopy[iterAt] = SpringState.Operational;
+                    var groups = GetGroups(stateCopy, iter.groups, iter.atGroupIndex);
 
-                        bool resetIndex = !GroupStateEquals(groups[Math.Max(0, iter.atGroupIndex - 1)], iter.groups[Math.Max(0, iter.atGroupIndex - 1)]);
-                        var (alignment, atSampleIndex, atGuideIndex) = WithinAlignment(groups, resetIndex ? 0 : iter.atGroupIndex, row.brokenGroups, resetIndex ? 0 : iter.atGuideIndex);
+                    bool resetIndex = !GroupStateEquals(groups[Math.Max(0, iter.atGroupIndex - 1)], iter.groups[Math.Max(0, iter.atGroupIndex - 1)]);
+                    var opsAlignment = WithinAlignment(groups, resetIndex ? 0 : iter.atGroupIndex, row.brokenGroups, resetIndex ? 0 : iter.atGuideIndex);
 
-                        //if (OutputAlways) Print(groups, row.brokenGroups, 4, alignment);
-                        if (alignment) { // only explore if this pathway is a viable match
-                            opsIter = new SolveIteration(
-                                    i: iter.i + 1,
-                                    state: stateCopy,
-                                    broken: iter.broken,
-                                    unknown: iter.unknown - 1,
-                                    groups: groups,
-                                    atGroupIndex: atSampleIndex,
-                                    atGuideIndex: atGuideIndex,
-                                    parent: iter
-                                ) {
-                            };
-                        }
-                    }
+                    opsIter = new SolveIteration(
+                            forkedAt: iterAt,
+                            state: stateCopy,
+                            broken: iter.broken,
+                            unknown: iter.unknown - 1,
+                            groups: groups,
+                            atGroupIndex: opsAlignment.atSampleIndex,
+                            atGuideIndex: opsAlignment.atGuideIndex,
+                            parent: iter
+                        ) {
+                    };
+
+
                     // Queue as broken
-                    if (queueBroken) { // if selecting broken here causes too many brokens don't walk that path
-                        SpringState[] stateCopy = CloneState(iter.state);
-                        stateCopy[iter.i] = SpringState.Broken;
-                        var groups = GetGroups(stateCopy, iter.groups, iter.atGroupIndex);
-                        bool resetIndex = !GroupStateEquals(groups[Math.Max(0, iter.atGroupIndex - 1)], iter.groups[Math.Max(0, iter.atGroupIndex - 1)]);
-                        var (alignment, atSampleIndex, atGuideIndex) = WithinAlignment(groups, resetIndex ? 0 : iter.atGroupIndex, row.brokenGroups, resetIndex ? 0 : iter.atGuideIndex);
-                        //if (OutputAlways) Print(groups, row.brokenGroups, 4, alignment);
-                        if (alignment) { // only explore if this pathway is a viable match
-                            brokenIter = new SolveIteration(
-                                    i: iter.i + 1,
-                                    state: stateCopy,
-                                    broken: iter.broken + 1,
-                                    unknown: iter.unknown - 1,
-                                    groups: groups,
-                                    atGroupIndex: atSampleIndex,
-                                    atGuideIndex: atGuideIndex,
-                                    parent: iter
-                                ) {
-                            };
-                        }
-                    }
+                    stateCopy = CloneState(iter.state);
+                    stateCopy[iterAt] = SpringState.Broken;
+                    groups = GetGroups(stateCopy, iter.groups, iter.atGroupIndex);
+                    resetIndex = !GroupStateEquals(groups[Math.Max(0, iter.atGroupIndex - 1)], iter.groups[Math.Max(0, iter.atGroupIndex - 1)]);
+                    var brokenAlignment = WithinAlignment(groups, resetIndex ? 0 : iter.atGroupIndex, row.brokenGroups, resetIndex ? 0 : iter.atGuideIndex);
+                    //if (OutputAlways) Print(groups, row.brokenGroups, 4, alignment);
+                    brokenIter = new SolveIteration(
+                            forkedAt: iterAt,
+                            state: stateCopy,
+                            broken: iter.broken + 1,
+                            unknown: iter.unknown - 1,
+                            groups: groups,
+                            atGroupIndex: brokenAlignment.atSampleIndex,
+                            atGuideIndex: brokenAlignment.atGuideIndex,
+                            parent: iter
+                        ) {
+                    };
 
-
-                    void QueueFork(SolveIteration siter) {
-                        if( siter is not null ) {
-                            var key = (siter.i - 1, siter.atGuideIndex, siter.state[siter.i - 1], siter.leftCount, iter.atGroupIndex);
-                            if (permutationCache.TryGetValue(key, out var cachedRowPerms)) {
-                                siter.rowPermutations = cachedRowPerms.permutations;
-                                cacheHits++;
-                            } else {
-                                forks.AddFirst(siter);
-                            }
-                        }
-                    }
-                    if( opsIter is not null || brokenIter is not null ) {
-                        iter.i = iterStart; // rewind i to the fork we started at.
-                        forks.AddFirst(iter);
+                    // IMPORTANT! All children must be added before calling solved on those children
+                    if (opsAlignment.result) { // only explore if this pathway is a viable match
                         QueueFork(opsIter);
+                    }
+                    else
+                        opsIter.Solved(0, permutationCache.ContainsKey(opsIter.GetCacheKey()), permutationCache);
+
+                    if (brokenAlignment.result) { // only explore if this pathway is a viable match
                         QueueFork(brokenIter);
                     }
+                    else
+                        brokenIter.Solved(0, permutationCache.ContainsKey(brokenIter.GetCacheKey()), permutationCache);
+                }
+                else {
+                    bool aligned = row.brokenGroups.SequenceEqual(iter.groups.Where(gs => gs.state == SpringState.Broken).Select(gs => gs.count));
+                    if (aligned)
+                        iter.Solved(1, false, permutationCache);
+                    else
+                        iter.Solved(0, false, permutationCache);
                 }
             }
 
-            maxIterTicks = Math.Max(sw.ElapsedTicks, maxIterTicks);
+            var iterTime = sw.Elapsed;
+            if (maxIterTime < iterTime) maxIterTime = iterTime;
         }
 
-        WriteLine($"rowperms: {rowperms} --- iterations {iterations} -- maxQueue {maxQueue} -- cacheHits {cacheHits} -- maxIterTicks {maxIterTicks} --- {rowTotal.Elapsed}");
+        if (printTree) WriteLine(PrintIterTree(root));
+        rowperms = root.RowPermutations;
+        WriteLine($"rowperms: {rowperms} --- iterations {iterations} -- maxQueue {maxQueue} -- cacheHits {cacheHits} -- maxIter {maxIterTime} --- {rowTotal.Elapsed}");
         return rowperms;
     }
     object Solve(List<Row> myRows)
@@ -434,7 +417,7 @@ class Day12 : ASolution
             if (cacheResult != nocacheResult) {
                 WriteLine(" ^ BROKEN");
                 _ = SolveRow(row, true, true);
-                //_ = SolveRow(row, false, true);
+                _ = SolveRow(row, false, true);
                 WriteLine(" ^ BROKEN");
                 return null;
             }
