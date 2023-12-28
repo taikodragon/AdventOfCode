@@ -15,7 +15,7 @@ class Day12 : ASolution
 {
     public Day12() : base(false)
     {
-        OutputAlways = true;
+        //OutputAlways = true;
     }
 
     public enum SpringState : byte {
@@ -91,24 +91,12 @@ class Day12 : ASolution
     }
 
 
-    static List<GroupState> GetGroups(SpringState[] states, List<GroupState> fromGroups, int startFromGroup) {
-        List<GroupState> groups;
-        int counter;
-        SpringState lastState;
-        int i;
+    static List<GroupState> GetGroups(SpringState[] states) {
+        List<GroupState> groups = new();
+        int counter = 0;
+        SpringState lastState = SpringState.Operational;
+        int i = 0;
         
-        if(fromGroups is null || startFromGroup <= 0) {
-            groups = new();
-            counter = 0;
-            lastState = SpringState.Operational;
-            i = 0;
-        } else {
-            groups = fromGroups[..(startFromGroup - 1)];
-            counter = fromGroups[startFromGroup - 1].count;
-            lastState = fromGroups[startFromGroup - 1].state;
-            i = fromGroups[startFromGroup].atIndex;
-        }
-
         for(; i < states.Length; i++) {
             var s = states[i];
             if (s != lastState) {
@@ -131,13 +119,12 @@ class Day12 : ASolution
         return Solve(rows);
     }
     protected override object SolvePartTwoRaw() {
-        //return Solve(rows2);
-        return null;
+        return Solve(rows2);
     }
 
-    static (bool result, int atSampleIndex, int atGuideIndex) WithinAlignment(List<GroupState> sample, int fromSampleIndex, int[] guide, int guideIndex) {
-        guideIndex = Math.Max(0, guideIndex);
-        for (int i = Math.Max(0, fromSampleIndex); i < sample.Count && guideIndex < guide.Length; i++) {
+    static (bool result, int atSampleIndex, int atGuideIndex) WithinAlignment(List<GroupState> sample, int[] guide) {
+        int guideIndex = 0;
+        for (int i = 0; i < sample.Count && guideIndex < guide.Length; i++) {
             if (sample[i].state == SpringState.Broken) {
                 if (sample[i].count < guide[guideIndex]) {
                     return (i + 1 < sample.Count && sample[i + 1].state == SpringState.Unknown, i, guideIndex);
@@ -159,19 +146,21 @@ class Day12 : ASolution
 
     class SolveIteration {
         public readonly int forkedAt, broken, unknown, atGuideIndex, atGroupIndex;
-        public SpringState[] state;
-        public List<GroupState> groups;
-
+        public readonly SpringState[] state;
+        public readonly List<GroupState> groups;
         public readonly SolveIteration parent = null;
+        public readonly int[] brokenCounts;
+
+        public bool cacheEnabled = true;
+        public List<SolveIteration> printChildren;
 
         private List<SolveIteration> children = new(2);
         private readonly int myGroupIndex;
         private ulong _rowPermutations;
         public ulong RowPermutations => _rowPermutations;
         public SpringState MyType => forkedAt >= 0 ? state[forkedAt] : SpringState.Unknown;
-        public bool cacheEnabled = true;
-        public List<SolveIteration> printChildren;
         public bool IsSolved { get; private set; }
+        public bool? SolvedByCache { get; private set; }
 
         public SolveIteration(int forkedAt, SpringState[] state, int broken, int unknown, List<GroupState> groups, int atGroupIndex, int atGuideIndex, SolveIteration parent)
         {
@@ -193,7 +182,7 @@ class Day12 : ASolution
             }
 
             myGroupIndex = groups.FindIndex(Math.Max(0, parent?.myGroupIndex ?? 0), gs => gs.atIndex <= forkedAt && (gs.atIndex + gs.count) > forkedAt);
-            
+            brokenCounts = groups.FindAll(gs => gs.state == SpringState.Broken).Select(gs => gs.count).ToArray();
         }
 
         public (int forkedAt, int nthGroup, SpringState groupType, int nthGroupSize, int atGuideIndex) GetCacheKey() {
@@ -208,6 +197,7 @@ class Day12 : ASolution
 
             _rowPermutations += rowPermutations;
             IsSolved = true;
+            SolvedByCache = fromCache;
 
             if( cacheEnabled && !fromCache ) {
                 var key = GetCacheKey();
@@ -246,18 +236,15 @@ class Day12 : ASolution
         }
     }
 
-    static bool GroupStateEquals(GroupState lhs, GroupState rhs) {
-        return lhs.state == rhs.state && lhs.count == rhs.count && lhs.atIndex == rhs.atIndex;
-    }
-
     string PrintIterTree(SolveIteration iter, int depth = 0, StringBuilder builder = null) {
+        if (!OutputAlways) return string.Empty;
         StringBuilder sb = builder ?? new(16 * 1024);
 
         // Print self
         sb.Append('|', depth)
             .Append('>')
             .Append(iter.state.Select(StringFromState).ToArray())
-            .AppendLine($" -- @{iter.forkedAt,3} RP{iter.RowPermutations,5} Solved {iter.IsSolved}")
+            .AppendLine($" -- @{iter.forkedAt,3} RP{iter.RowPermutations,5} Solved {iter.IsSolved} ByCache {iter.SolvedByCache}")
             .Append('|', depth + 1)
             .Append(' ', Math.Max(0, iter.forkedAt))
             .AppendLine("^");
@@ -288,7 +275,7 @@ class Day12 : ASolution
                 state: CloneState(rowInitialStates),
                 broken: rowInitialStates.Count(st => st == SpringState.Broken),
                 unknown: rowInitialStates.Count(st => st == SpringState.Unknown),
-                groups: GetGroups(rowInitialStates, null, 0),
+                groups: GetGroups(rowInitialStates),
                 atGroupIndex: 0,
                 atGuideIndex: 0,
                 parent: null
@@ -305,7 +292,7 @@ class Day12 : ASolution
                     siter.Solved(cachedRowPerms.permutations, true, permutationCache);
                     cacheHits++;
                 }
-                else if (siter.atGuideIndex == row.brokenGroups.Length) { // this row is solved
+                else if (siter.brokenCounts.Length == row.brokenGroups.Length && siter.atGuideIndex == row.brokenGroups.Length) { // this row is solved
                     siter.Solved(1, false, permutationCache);
                 }
                 else {
@@ -322,9 +309,8 @@ class Day12 : ASolution
             var iter = iterStateNode.Value;
             forks.RemoveFirst();
 
-            if (iter.atGuideIndex == row.brokenGroups.Length) {
+            if (iter.brokenCounts.Length == row.brokenGroups.Length && iter.atGuideIndex == row.brokenGroups.Length) {
                 iter.Solved(1, false, permutationCache);
-
             }
             else {
                 int iterAt = iter.forkedAt + 1;
@@ -336,10 +322,9 @@ class Day12 : ASolution
                     // Queue as operational
                     SpringState[] stateCopy = CloneState(iter.state);
                     stateCopy[iterAt] = SpringState.Operational;
-                    var groups = GetGroups(stateCopy, iter.groups, iter.atGroupIndex);
+                    var groups = GetGroups(stateCopy);
 
-                    bool resetIndex = !GroupStateEquals(groups[Math.Max(0, iter.atGroupIndex - 1)], iter.groups[Math.Max(0, iter.atGroupIndex - 1)]);
-                    var opsAlignment = WithinAlignment(groups, resetIndex ? 0 : iter.atGroupIndex, row.brokenGroups, resetIndex ? 0 : iter.atGuideIndex);
+                    var opsAlignment = WithinAlignment(groups, row.brokenGroups);
 
                     opsIter = new SolveIteration(
                             forkedAt: iterAt,
@@ -357,9 +342,8 @@ class Day12 : ASolution
                     // Queue as broken
                     stateCopy = CloneState(iter.state);
                     stateCopy[iterAt] = SpringState.Broken;
-                    groups = GetGroups(stateCopy, iter.groups, iter.atGroupIndex);
-                    resetIndex = !GroupStateEquals(groups[Math.Max(0, iter.atGroupIndex - 1)], iter.groups[Math.Max(0, iter.atGroupIndex - 1)]);
-                    var brokenAlignment = WithinAlignment(groups, resetIndex ? 0 : iter.atGroupIndex, row.brokenGroups, resetIndex ? 0 : iter.atGuideIndex);
+                    groups = GetGroups(stateCopy);
+                    var brokenAlignment = WithinAlignment(groups, row.brokenGroups);
                     //if (OutputAlways) Print(groups, row.brokenGroups, 4, alignment);
                     brokenIter = new SolveIteration(
                             forkedAt: iterAt,
@@ -387,7 +371,7 @@ class Day12 : ASolution
                         brokenIter.Solved(0, permutationCache.ContainsKey(brokenIter.GetCacheKey()), permutationCache);
                 }
                 else {
-                    bool aligned = row.brokenGroups.SequenceEqual(iter.groups.Where(gs => gs.state == SpringState.Broken).Select(gs => gs.count));
+                    bool aligned = row.brokenGroups.SequenceEqual(iter.brokenCounts);
                     if (aligned)
                         iter.Solved(1, false, permutationCache);
                     else
@@ -411,16 +395,16 @@ class Day12 : ASolution
 
 
         foreach (var row in myRows) {
-            WriteLine(row.raw);
+            WriteLine($"{row.raw} -- {string.Join(',',row.brokenGroups)}");
             var cacheResult = SolveRow(row, true, false);
-            var nocacheResult = SolveRow(row, false, false);
-            if (cacheResult != nocacheResult) {
-                WriteLine(" ^ BROKEN");
-                _ = SolveRow(row, true, true);
-                _ = SolveRow(row, false, true);
-                WriteLine(" ^ BROKEN");
-                return null;
-            }
+            //var nocacheResult = SolveRow(row, false, false);
+            //if (cacheResult != nocacheResult) {
+            //    WriteLine(" ^ BROKEN");
+            //    _ = SolveRow(row, true, true);*
+            //    _ = SolveRow(row, false, true);
+            //    WriteLine(" ^ BROKEN");
+            //    return null;
+            //}
             perm += cacheResult;
         }
 

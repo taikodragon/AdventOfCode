@@ -16,15 +16,6 @@ namespace AdventOfCode.Solutions
 
         public SolutionCollector(int year, int[] days) => Solutions = LoadSolutions(year, days).ToArray();
 
-        public ASolution GetSolution(int day) {
-            try {
-                return Solutions.Single(s => s.Day == day);
-            }
-            catch( InvalidOperationException ) {
-                return null;
-            }
-        }
-
         public IEnumerator<ASolution> GetEnumerator() {
             return Solutions.GetEnumerator();
         }
